@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en" class="antialiased">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MVMP Marketplace</title>
+
+  <!-- Tailwind CDN (for quick single-file usage). For production, compile Tailwind. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <meta name="color-scheme" content="light dark">
+
+  <style>
+    /* --- Custom design tokens (work with Tailwind) --- */
+    :root{
+      --primary:#0f6fff;    /* professional blue */
+      --accent:#ff7a59;     /* warm accent */
+      --muted:#6b7280;
+      --bg:#f7f9fc;
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.6);
+      --radius:14px;
+      --max-width:1200px;
+      --shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+      --success:#1ec28a;
+    }
+    /* dark */
+    html.dark {
+      --primary:#6ea8ff;
+      --accent:#ff9a73;
+      --muted:#9aa3b2;
+      --bg:#071026;
+      --card:#071828;
+      --glass: rgba(20,28,38,0.35);
+      --shadow: 0 10px 28px rgba(2,6,23,0.6);
+      color-scheme: dark;
+    }
+
+    body{
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg) 0%, rgba(255,255,255,0) 100%);
+      margin:0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* container */
+    .app {
+      max-width: var(--max-width);
+      margin: 28px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    /* mobile layout */
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; margin-bottom: 88px; }
+      nav.side { display:none; }
+    }
+
+    header.topbar {
+      background: linear-gradient(90deg, var(--primary), #2b7bff);
+      color: white;
+      border-radius: 14px;
+      padding: 12px 18px;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+    }
+
+    .brand { display:flex; align-items:center; gap:12px; cursor:pointer; }
+    .brand .logo {
+      width:48px; height:48px; border-radius:12px; display:grid; place-items:center;
+      font-weight:800; color:var(--primary); background:white;
+    }
+
+    /* card baseline */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    /* product image placeholder */
+    .img-placeholder { background: linear-gradient(90deg,#eef4ff,#f7fbff); height:160px; border-radius:12px; display:grid; place-items:center; color:var(--muted); }
+
+    /* bottom navigation fixed */
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 12px;
+      width: min(960px, calc(100% - 28px));
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+      box-shadow: 0 10px 30px rgba(2,6,23,0.08);
+      border-radius: 14px;
+      display:flex;
+      justify-content:space-between;
+      padding: 6px;
+      z-index: 60;
+      backdrop-filter: blur(6px);
+    }
+    html.dark .bottom-nav { background: linear-gradient(180deg, rgba(8,18,28,0.6), rgba(8,18,28,0.5)); }
+
+    .bottom-nav button { flex:1; display:flex; gap:8px; align-items:center; justify-content:center; padding:10px 8px; border-radius:10px; border:none; background:transparent; color:var(--muted); cursor:pointer; font-weight:600; }
+    .bottom-nav button.active { background: linear-gradient(90deg,var(--primary),#2b7bff); color:white; box-shadow: 0 6px 18px rgba(11,92,255,0.12); transform:translateY(-2px); }
+
+    /* accessible focus */
+    .focus-ring:focus { outline: 3px solid rgba(15,111,255,0.16); outline-offset:3px; border-radius:8px; }
+
+    /* utility tweaks for panels */
+    .panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid rgba(0,0,0,0.04); }
+    html.dark .panel-head { border-bottom:1px solid rgba(255,255,255,0.04); }
+
+    /* small helpers */
+    .muted { color: var(--muted); font-size:13px; }
+    .chip { padding:6px 10px; border-radius:999px; background:linear-gradient(90deg,#eaf3ff,#fff7f1); font-weight:700; color:var(--primary); }
+    html.dark .chip { background: rgba(255,255,255,0.04); color:var(--primary); }
+    .kpi { display:flex; gap:10px; align-items:center; }
+    .kpi .value { font-size:20px; font-weight:800; }
+    .kpi .label { font-size:12px; color:var(--muted); }
+
+    /* improved product card */
+    .product-card { padding:14px; border-radius:12px; transition: transform .18s, box-shadow .18s; cursor:default; }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(12,34,56,0.08); }
+
+    /* small table */
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { padding:10px 8px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.04); }
+    html.dark th, html.dark td { border-bottom:1px solid rgba(255,255,255,0.03); }
+
+    /* toast */
+    .toast {
+      position: fixed; right: 18px; bottom: 92px;
+      background: rgba(17,24,39,0.95); color:white; padding:10px 12px; border-radius:10px; z-index:80;
+      box-shadow: 0 8px 24px rgba(2,6,23,0.4);
+    }
+  </style>
+</head>
+<body class="text-gray-900">
+
+  <!-- Topbar -->
+  <header class="topbar" role="banner" aria-label="Topbar">
+    <div class="brand" onclick="app.route('home')" tabindex="0" role="button" aria-label="Go home">
+      <div class="logo">MV</div>
+      <div>
+        <div class="text-sm font-semibold">MVMP Marketplace</div>
+        <div class="text-xs muted">Multi-vendor • Secure payments</div>
+      </div>
+    </div>
+
+    <div class="flex-1 max-w-2xl ml-6 hidden md:block">
+      <div class="flex gap-3 items-center">
+        <input id="globalSearch" aria-label="Search products" type="search" placeholder="Search products, e.g. wireless headphones" class="w-full rounded-lg px-4 py-2 border border-transparent focus:ring-2 focus:ring-blue-200 focus:outline-none" />
+        <button id="btnSearch" class="px-3 py-2 rounded-lg bg-white text-sm font-semibold focus-ring">Search</button>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button id="themeToggle" class="px-3 py-2 rounded-lg bg-white/10 text-white focus-ring" aria-pressed="false" title="Toggle dark mode">Dark</button>
+      <div id="topUserArea" class="flex items-center gap-3"></div>
+      <button id="cartBtn" class="px-3 py-2 rounded-lg bg-white/10 text-white focus-ring" onclick="app.route('cart')">Cart (<span id="topCartCount">0</span>)</button>
+    </div>
+  </header>
+
+  <!-- App grid -->
+  <main class="app" id="app" role="main">
+    <!-- Sidebar (desktop) -->
+    <nav class="side card p-4" id="sidebar" aria-label="Sidebar">
+      <div class="flex items-center gap-3 mb-4">
+        <div id="sbAvatar" class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white grid place-items-center font-bold text-lg">G</div>
+        <div>
+          <div id="sbName" class="font-semibold">Guest</div>
+          <div id="sbEmail" class="muted">Not signed in</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="mb-2 font-semibold">Quick Actions</div>
+        <div class="flex flex-col gap-2">
+          <button class="btn-action focus-ring p-2 rounded-md text-left" onclick="app.route('home')">Home</button>
+          <button class="btn-action focus-ring p-2 rounded-md text-left" onclick="app.route('products')">Products</button>
+          <button class="btn-action focus-ring p-2 rounded-md text-left" onclick="app.route('dashboard')">Dashboard</button>
+          <button class="btn-action focus-ring p-2 rounded-md text-left" onclick="app.route('profile')">Profile</button>
+          <button class="btn-action focus-ring p-2 rounded-md text-left" onclick="app.route('settings')">Settings</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="font-semibold mb-2">Categories</div>
+        <div class="grid gap-2">
+          <!-- improved categories -->
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Electronics')">Electronics & Accessories</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Home & Living')">Home & Living</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Beauty & Personal Care')">Beauty & Personal Care</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Groceries & Gourmet')">Groceries & Gourmet</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Toys & Kids')">Toys & Kids</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Office & Stationery')">Office & Stationery</button>
+          <button class="category-btn text-left py-2 rounded-md focus-ring" onclick="app.filterByCategory('Fashion & Apparel')">Fashion & Apparel</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="font-semibold mb-2">About</div>
+        <div class="muted text-sm">Secure payments • Multi-vendor • Fast support</div>
+      </div>
+    </nav>
+
+    <!-- Main view -->
+    <section id="view" class="mainview min-h-[60vh]"></section>
+  </main>
+
+  <!-- Bottom navigation (mobile & desktop) -->
+  <nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <button id="navHome" onclick="app.route('home')" class="active" aria-current="page">Home</button>
+    <button id="navProducts" onclick="app.route('products')">Products</button>
+    <button id="navDashboard" onclick="app.route('dashboard')">Dashboard</button>
+    <button id="navProfile" onclick="app.route('profile')">Profile</button>
+    <button id="navSettings" onclick="app.route('settings')">Settings</button>
+  </nav>
+
+  <!-- Toast area -->
+  <div id="toastArea" aria-live="polite"></div>
+
+  <script>
+  /*************************************************************************
+   * MVMP Single File App - Modernized & Optimized
+   * - Single-file SPA with hash routing
+   * - Dark mode with localStorage persistence
+   * - Improved UI interactions, accessibility, and error handling
+   * - Built-in mock fallback so UI works without backend
+   * - Vendor analytics (Chart.js) with demo charts
+   *************************************************************************/
+
+  // ---------- Configuration ----------
+  const API_BASE = 'http://localhost:5000/api'; // change if your backend differs
+  const DEMO = true; // set to false to prefer real backend (fallbacks still used on failure)
+  const MAX_PRODUCTS_FETCH = 100;
+
+  // ---------- Small utilities ----------
+  const qs = (s, root=document) => root.querySelector(s);
+  const qsa = (s, root=document) => Array.from((root || document).querySelectorAll(s));
+  const el = (tag, attrs={}, children=[]) => {
+    const e = document.createElement(tag);
+    for(const k in attrs){
+      if(k.startsWith('on') && typeof attrs[k] === 'function') e.addEventListener(k.substring(2), attrs[k]);
+      else if(k === 'html') e.innerHTML = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    if(typeof children === 'string') e.textContent = children;
+    else children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    return e;
+  };
+
+  function showToast(msg, time=3500){
+    const id = 'toast-' + Date.now();
+    const t = el('div', { id, class: 'toast rounded-md' }, [document.createTextNode(msg)]);
+    document.body.appendChild(t);
+    setTimeout(()=> { t.remove(); }, time);
+  }
+
+  // debounce
+  function debounce(fn, wait=300){
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(()=> fn(...args), wait); };
+  }
+
+  // local storage helpers
+  const storage = {
+    set(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+    get(k, fallback=null){
+      try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : fallback; } catch(e){ return fallback; }
+    },
+    rawSet(k,v){ localStorage.setItem(k, v); },
+    rawGet(k){ return localStorage.getItem(k); }
+  };
+
+  // ---------- Theme (dark/light) ----------
+  const Theme = {
+    init(){
+      const stored = storage.rawGet('mvmp_theme');
+      if(stored === 'dark') document.documentElement.classList.add('dark');
+      if(stored === 'light') document.documentElement.classList.remove('dark');
+      // set button state
+      const btn = qs('#themeToggle');
+      btn.textContent = document.documentElement.classList.contains('dark') ? 'Light' : 'Dark';
+      btn.setAttribute('aria-pressed', document.documentElement.classList.contains('dark'));
+      btn.addEventListener('click', ()=> {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        storage.rawSet('mvmp_theme', isDark ? 'dark' : 'light');
+        btn.textContent = isDark ? 'Light' : 'Dark';
+        btn.setAttribute('aria-pressed', isDark);
+      });
+    }
+  };
+
+  // ---------- API wrapper (graceful fallback to mock) ----------
+  async function apiFetch(path, opts={}){
+    const headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
+    const token = storage.rawGet('token');
+    if(token) headers['Authorization'] = 'Bearer ' + token;
+    const cfg = Object.assign({ method: 'GET', headers }, opts);
+    if(cfg.body && typeof cfg.body !== 'string') cfg.body = JSON.stringify(cfg.body);
+    if(DEMO){
+      // if demo mode, try backend but fallback quickly to mock on failure
+      try {
+        const res = await fetch(API_BASE + path, cfg);
+        if(!res.ok) throw new Error('Network response not ok');
+        const text = await res.text();
+        try { return JSON.parse(text); } catch(e){ return text; }
+      } catch(e){
+        // fallback to mock for common endpoints
+        return mockApi(path, cfg);
+      }
+    } else {
+      // non-demo: try backend; propagate errors
+      const res = await fetch(API_BASE + path, cfg);
+      const text = await res.text();
+      let data = null;
+      try{ data = JSON.parse(text); } catch(e){ data = text; }
+      if(!res.ok) throw data || { error: 'Request failed' };
+      return data;
+    }
+  }
+
+  // ---------- Mock data for demo (used only when backend isn't reachable) ----------
+  function mockApi(path, cfg){
+    // simple router for demo
+    if(path.startsWith('/products')){
+      // return paginated-ish list
+      const sample = [];
+      for(let i=1;i<=24;i++){
+        sample.push({
+          _id: 'p' + i,
+          title: `Demo Product ${i}`,
+          price: Math.round(299 + Math.random() * 3500),
+          category: ['Electronics & Accessories','Home & Living','Fashion & Apparel','Groceries & Gourmet'][i % 4],
+          images: ['https://picsum.photos/seed/prod' + i + '/600/400'],
+          description: `High-quality demo product #${i}. Great value, tested for UX demos.`,
+          vendor: { _id: 'v' + ((i % 5) + 1), name: 'Vendor ' + ((i % 5) + 1) },
+          rating: (Math.random()*2 + 3).toFixed(1)
+        });
+      }
+      return { items: sample.slice(0, MAX_PRODUCTS_FETCH) };
+    }
+
+    if(path.startsWith('/cart/')){
+      return { items: [] };
+    }
+
+    if(path.startsWith('/orders')){
+      const orders = [];
+      for(let i=1;i<=6;i++){
+        orders.push({ _id: 'o' + i, totalAmount: Math.round(299 + i * 1200), status: ['Delivered','Processing','Cancelled'][i%3] });
+      }
+      return orders;
+    }
+
+    if(path.startsWith('/auth/login')){
+      return { token: 'demo-token', user: { id: 'user1', name: 'Demo User', email: 'demo@example.com', role: 'customer' } };
+    }
+
+    if(path.startsWith('/analytics')){
+      return {
+        sales: Array.from({length: 12}).map((_,i) => Math.round(1000 + Math.random() * 4000)),
+        vendors: [
+          { name: 'Vendor A', sales: 15200 },
+          { name: 'Vendor B', sales: 9800 },
+          { name: 'Vendor C', sales: 7200 },
+          { name: 'Vendor D', sales: 5400 }
+        ]
+      };
+    }
+
+    return { ok: true };
+  }
+
+  // ---------- App state & core functions ----------
+  const app = {
+    state: {
+      products: [],
+      product: null,
+      cart: [],
+      view: 'home',
+      filters: {},
+      analytics: null
+    },
+
+    async init(){
+      Theme.init();
+      this.bindUI();
+      this.loadCartCount();
+      this.routeFromHash();
+      window.addEventListener('hashchange', ()=> this.routeFromHash());
+      // initial data load
+      await this.loadProducts({ limit: 12 });
+      // lazy load analytics after small delay
+      setTimeout(()=> this.loadAnalytics(), 600);
+    },
+
+    bindUI(){
+      // top search
+      const btn = qs('#btnSearch');
+      btn.addEventListener('click', () => {
+        const q = qs('#globalSearch').value.trim();
+        this.route('products', { q });
+      });
+      qs('#globalSearch').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){ btn.click(); }
+      });
+
+      // bottom nav active state
+      qsa('.bottom-nav button').forEach(b => {
+        b.addEventListener('click', ()=> {
+          qsa('.bottom-nav button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        });
+      });
+
+      // set user area
+      this.updateTopUserArea();
+    },
+
+    route(to, params={}) {
+      // use hash path
+      location.hash = '#/' + to;
+      // store filters for product listing
+      if(Object.keys(params).length) this.state.filters = params;
+    },
+
+    routeFromHash(){
+      const h = location.hash.replace(/^#\//,'');
+      if(!h || h === '') { this.renderHome(); return; }
+      if(h.startsWith('product/')) {
+        const id = h.split('/')[1];
+        this.renderProductDetail(id);
+        return;
+      }
+      if(h === 'products') { this.renderProductList(this.state.filters); return; }
+      if(h === 'cart') { this.renderCart(); return; }
+      if(h === 'checkout') { this.renderCheckout(); return; }
+      if(h === 'login') { this.renderLogin(); return; }
+      if(h === 'signup') { this.renderSignup(); return; }
+      if(h === 'forgot') { this.renderForgot(); return; }
+      if(h === 'otp') { this.renderOtp(); return; }
+      if(h === 'dashboard') { this.renderDashboard(); return; }
+      if(h === 'profile') { this.renderProfile(); return; }
+      if(h === 'settings') { this.renderSettings(); return; }
+      // fallback
+      this.renderHome();
+    },
+
+    // ---------- auth helpers ----------
+    updateTopUserArea(){
+      const area = qs('#topUserArea');
+      area.innerHTML = '';
+      const user = storage.get('user', null);
+      if(user){
+        const span = el('div', { class: 'text-sm font-semibold' }, [ user.name || user.email || 'User' ]);
+        const roleChip = el('div', { class: 'chip ml-2' }, [ user.role || 'customer' ]);
+        const logout = el('button', { class: 'px-3 py-1 rounded-md bg-white/10 text-white focus-ring', onclick: ()=> { this.logout(); } }, ['Logout']);
+        area.appendChild(span);
+        area.appendChild(roleChip);
+        area.appendChild(logout);
+        qs('#sbName').textContent = user.name || user.email;
+        qs('#sbEmail').textContent = user.email || '';
+        qs('#sbAvatar').textContent = (user.name || 'U').slice(0,1).toUpperCase();
+      } else {
+        const loginBtn = el('button', { class: 'px-3 py-1 rounded-md bg-white text-sm font-semibold focus-ring', onclick: ()=> this.route('login') }, ['Login']);
+        const signupBtn = el('button', { class: 'px-3 py-1 rounded-md border border-white/10 text-white ml-1 focus-ring', onclick: ()=> this.route('signup') }, ['Signup']);
+        area.appendChild(loginBtn);
+        area.appendChild(signupBtn);
+        qs('#sbName').textContent = 'Guest';
+        qs('#sbEmail').textContent = 'Not signed in';
+        qs('#sbAvatar').textContent = 'G';
+      }
+    },
+
+    async loginDemo(){
+      // simple demo login - replace with real API call
+      try {
+        const res = await apiFetch('/auth/login', { method: 'POST', body: { demo:true } });
+        storage.rawSet('token', res.token || 'demo-token');
+        storage.set('user', res.user || { id:'user1', name: 'Demo User', email:'demo@example.com', role: 'customer' });
+        showToast('Logged in');
+        this.updateTopUserArea();
+        this.route('dashboard');
+      } catch(e){ console.error(e); showToast('Login failed'); }
+    },
+
+    logout(){
+      storage.rawSet('token', '');
+      storage.set('user', null);
+      showToast('Logged out');
+      this.updateTopUserArea();
+      this.route('home');
+    },
+
+    // ---------- products ----------
+    async loadProducts(filters = { limit: 12 }){
+      try {
+        const q = new URLSearchParams();
+        for(const k in filters) if(filters[k] !== undefined && filters[k] !== null) q.append(k, filters[k]);
+        const res = await apiFetch('/products?' + q.toString());
+        this.state.products = res.items || [];
+      } catch(err){
+        console.error('products load failed', err);
+        this.state.products = [];
+      }
+    },
+
+    async renderHome(){
+      this.state.view = 'home';
+      const root = qs('#view');
+      root.innerHTML = '';
+
+      // hero
+      const hero = el('div', { class: 'card p-6 mb-6' }, []);
+      hero.appendChild(el('div', { class: 'flex items-center justify-between gap-4' }, [
+        el('div', {}, [
+          el('h1', { class: 'text-2xl font-bold' }, ['Welcome to MVMP']),
+          el('div', { class: 'muted mt-1' }, ['A beautiful, multi-vendor marketplace — explore curated products and vendor stores'])
+        ]),
+        el('div', { class: 'flex items-center gap-3' }, [
+          el('button', { class: 'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold focus-ring', onclick: ()=> this.route('products') }, ['Shop Now']),
+          el('button', { class: 'px-4 py-2 rounded-md border border-slate-200 text-sm focus-ring', onclick: ()=> this.route('dashboard') }, ['Dashboard'])
+        ])
+      ]));
+      root.appendChild(hero);
+
+      // featured products
+      const featured = el('div', { class: 'card p-4 mb-6' }, []);
+      featured.appendChild(el('div', { class: 'panel-head' }, [
+        el('div', { class: 'flex items-center gap-3' }, [ el('h3', { class: 'text-lg font-semibold' }, ['Featured products']), el('div', { class: 'muted' }, ['Trending picks']) ]),
+        el('div', {}, [ el('button', { class: 'px-3 py-1 rounded-md border focus-ring', onclick: ()=> this.route('products') }, ['View all']) ])
+      ]));
+      const grid = el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4' }, []);
+      // ensure products loaded
+      if(this.state.products.length === 0) await this.loadProducts({ limit: 9 });
+      (this.state.products || []).slice(0,9).forEach(p => {
+        const card = el('article', { class: 'product-card card p-4' }, []);
+        card.appendChild(el('div', { class: 'img-placeholder overflow-hidden rounded-md mb-3' }, [
+          el('img', { src: p.images && p.images.length ? p.images[0] : 'https://picsum.photos/seed/default/800/600', alt: p.title, style: 'width:100%; height:160px; object-fit:cover; border-radius:10px' })
+        ]));
+        card.appendChild(el('h4', { class: 'font-semibold' }, [ p.title || 'Untitled' ]));
+        card.appendChild(el('div', { class: 'muted mt-1' }, [ `${p.category || 'General'} • ₹${p.price || '—'}` ]));
+        card.appendChild(el('div', { class: 'mt-3 flex items-center gap-2' }, [
+          el('button', { class: 'px-3 py-1 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> this.route('product/' + p._id) }, ['View']),
+          el('button', { class: 'px-3 py-1 rounded-md border focus-ring', onclick: ()=> { this.addToCartLocal(p,1); } }, ['Add'])
+        ]));
+        grid.appendChild(card);
+      });
+      featured.appendChild(grid);
+      root.appendChild(featured);
+
+      // quick vendor cards + stats
+      const grid2 = el('div', { class: 'grid grid-cols-1 md:grid-cols-3 gap-4' }, []);
+      const vcard = el('div', { class: 'card p-4' }, []);
+      vcard.appendChild(el('h4', { class: 'font-semibold' }, ['Top Vendors']));
+      const vendorList = el('div', { class: 'mt-3 grid gap-2' }, []);
+      // mock vendor list
+      ['Vendor A','Vendor B','Vendor C'].forEach((v,i) => {
+        vendorList.appendChild(el('div', { class: 'flex items-center justify-between' }, [
+          el('div', {}, [ el('div', { class: 'font-medium' }, [v]), el('div', { class: 'muted text-xs' }, ['Products: ' + (6 + i * 3)]) ]),
+          el('div', {}, [ el('button', { class: 'px-3 py-1 rounded-md border focus-ring', onclick: ()=> showToast('View vendor - demo') }, ['View']) ])
+        ]));
+      });
+      vcard.appendChild(vendorList);
+      grid2.appendChild(vcard);
+
+      // small dashboard KPIs
+      const kpiCard = el('div', { class: 'card p-4 flex flex-col gap-3' }, []);
+      kpiCard.appendChild(el('h4', { class:'font-semibold' }, ['Quick Stats']));
+      const kpigrid = el('div', { class:'grid grid-cols-1 sm:grid-cols-2 gap-3' }, []);
+      kpigrid.appendChild(el('div', { class: 'p-3 rounded-md bg-gradient-to-r from-white to-white/40' }, [
+        el('div', { class:'kpi' }, [ el('div', { class:'value' }, ['₹' + (storage.get('demo_total_sales') || 128000)]), el('div', { class:'label ml-2' }, ['Total sales']) ])
+      ]));
+      kpigrid.appendChild(el('div', { class: 'p-3 rounded-md' }, [
+        el('div', { class:'kpi' }, [ el('div', { class:'value' }, [(storage.get('demo_orders') || 382)]), el('div', { class:'label ml-2' }, ['Orders']) ])
+      ]));
+      kpiCard.appendChild(kpigrid);
+      grid2.appendChild(kpiCard);
+
+      // analytics preview (mini chart)
+      const chartCard = el('div', { class: 'card p-4' }, []);
+      chartCard.appendChild(el('h4', { class:'font-semibold mb-2' }, ['Sales (last 12 months)']));
+      chartCard.appendChild(el('canvas', { id: 'miniSalesChart', width: '400', height: '120' }));
+      grid2.appendChild(chartCard);
+
+      root.appendChild(grid2);
+
+      // draw mini chart
+      setTimeout(()=> {
+        const ctx = qs('#miniSalesChart');
+        if(ctx){
+          const labels = Array.from({length:12}).map((_,i)=> {
+            const d = new Date(); d.setMonth(d.getMonth() - (11 - i));
+            return d.toLocaleString(undefined, { month: 'short' });
+          });
+          const data = (storage.get('demo_sales') || Array.from({length:12}).map(()=> Math.round(1000 + Math.random() * 4000)));
+          new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'Sales', data, fill: true, tension: 0.35, backgroundColor: 'rgba(15,111,255,0.12)', borderColor: '#0f6fff', pointRadius: 2 }]},
+            options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback: v => '₹' + v } } } }
+          });
+        }
+      }, 40);
+    },
+
+    async renderProductList(filters = {}){
+      this.state.view = 'products';
+      const root = qs('#view');
+      root.innerHTML = '';
+      // header + filters
+      const top = el('div', { class:'card p-4 mb-4' }, []);
+      top.appendChild(el('div', { class: 'panel-head' }, [
+        el('div', { class: 'flex items-center gap-3' }, [ el('h3', { class:'text-lg font-semibold' }, ['Products']), el('div', { class:'muted' }, ['Browse marketplace']) ]),
+        el('div', {}, [ el('button', { class:'rounded-md px-3 py-1 border focus-ring', onclick: ()=> { this.loadProducts({ limit: 100 }); this.renderProductList(filters); } }, ['Refresh']) ])
+      ]));
+      // search + category filter
+      const controls = el('div', { class: 'flex gap-3 mt-3' }, []);
+      const sInput = el('input', { placeholder: 'Search products...', value: filters.q||'', id: 'pl_search', class: 'flex-1 rounded-md px-3 py-2 border focus-ring' });
+      const catSelect = el('select', { id: 'pl_cat', class: 'rounded-md px-3 py-2 border focus-ring' }, []);
+      ['','All categories','Electronics & Accessories','Home & Living','Beauty & Personal Care','Groceries & Gourmet','Toys & Kids','Office & Stationery','Fashion & Apparel'].forEach(v=>{
+        catSelect.appendChild(el('option', { value: v }, [v || 'All']));
+      });
+      if(filters.category) catSelect.value = filters.category;
+      const searchBtn = el('button', { class: 'px-3 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: async ()=> {
+        const q = sInput.value.trim();
+        const category = catSelect.value || '';
+        this.route('products', { q, category });
+        await this.loadProducts({ q, category, limit: 100 });
+        this.renderProductList({ q, category });
+      } }, ['Search']);
+      controls.appendChild(sInput); controls.appendChild(catSelect); controls.appendChild(searchBtn);
+      top.appendChild(controls);
+      root.appendChild(top);
+
+      // results grid
+      const results = el('div', { class: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' }, []);
+      const products = this.state.products || [];
+      if(products.length === 0) {
+        await this.loadProducts({ q: filters.q || '', category: filters.category || '', limit: 100 });
+      }
+      const finalList = (this.state.products || []).filter(p => {
+        if(filters.q && filters.q.length) {
+          const q = filters.q.toLowerCase();
+          if(!(p.title||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
+        }
+        if(filters.category && filters.category.length && filters.category !== 'All categories') {
+          if((p.category||'').toLowerCase() !== filters.category.toLowerCase()) return false;
+        }
+        return true;
+      });
+
+      if(finalList.length === 0) results.appendChild(el('div', {}, ['No products found.']));
+      finalList.forEach(p => {
+        const c = el('article', { class: 'product-card card p-4' }, []);
+        c.appendChild(el('div', { class: 'img-placeholder overflow-hidden rounded-md mb-3' }, [ el('img', { src: p.images && p.images.length ? p.images[0] : 'https://picsum.photos/seed/prod/800/600', alt: p.title, style: 'width:100%; height:160px; object-fit:cover; border-radius:10px' }) ]));
+        c.appendChild(el('h4', { class: 'font-semibold' }, [ p.title || 'Untitled' ]));
+        c.appendChild(el('div', { class: 'muted mt-1' }, [ `${p.category || 'General'} • ₹${p.price || '—'}` ]));
+        c.appendChild(el('div', { class: 'mt-3 flex items-center gap-2' }, [
+          el('button', { class: 'px-3 py-1 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> this.route('product/' + p._id) }, ['View']),
+          el('button', { class: 'px-3 py-1 rounded-md border focus-ring', onclick: ()=> this.addToCartLocal(p,1) }, ['Add'])
+        ]));
+        results.appendChild(c);
+      });
+
+      root.appendChild(results);
+    },
+
+    async renderProductDetail(id){
+      this.state.view = 'product';
+      const root = qs('#view');
+      root.innerHTML = '';
+      const card = el('div', { class: 'card p-4' }, []);
+      card.appendChild(el('div', { class: 'panel-head' }, [ el('h3', { class:'text-lg font-semibold' }, ['Product details']) ]));
+      try {
+        const p = (this.state.products || []).find(x => x._id === id) || (await apiFetch('/products/' + id));
+        if(!p) throw new Error('Product not found');
+        card.appendChild(el('div', { class: 'grid grid-cols-1 md:grid-cols-3 gap-6 p-4' }, [
+          el('div', { class: '' }, [ el('img', { src: p.images && p.images.length ? p.images[0] : 'https://picsum.photos/seed/prod/800/600', alt: p.title, style:'width:100%; height:320px; object-fit:cover; border-radius:12px' }) ]),
+          el('div', { class: 'md:col-span-2' }, [
+            el('h2', { class: 'text-2xl font-bold' }, [ p.title ]),
+            el('div', { class: 'muted mt-1' }, [ p.category || 'General' ]),
+            el('div', { class: 'text-2xl font-extrabold mt-3' }, ['₹' + (p.price || '—')]),
+            el('p', { class: 'mt-3 muted' }, [ p.description || 'No description' ]),
+            el('div', { class: 'mt-4 flex items-center gap-3' }, [
+              el('label', { class: 'flex items-center gap-2' }, [ 'Qty', el('input', { type: 'number', id: 'detailQty', value: 1, min: 1, class: 'w-20 rounded-md px-2 py-1 border focus-ring' }) ]),
+              el('button', { class: 'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> {
+                const qty = Number(qs('#detailQty').value || 1);
+                this.addToCartLocal(p, qty);
+              } }, ['Add to cart']),
+              el('button', { class: 'px-4 py-2 rounded-md border focus-ring', onclick: ()=> { storage.set('mvmp_buy', [{ product: p._id, price: p.price, qty: Number(qs('#detailQty').value || 1), title: p.title }]); this.route('checkout'); } }, ['Buy now'])
+            ])
+          ])
+        ]));
+      } catch(e){
+        console.error(e);
+        card.appendChild(el('div', {}, ['Product not found or backend error.']));
+      }
+      root.appendChild(card);
+    },
+
+    // local cart (quick UI-first experience)
+    addToCartLocal(p, qty=1){
+      const cart = storage.get('mvmp_cart', []);
+      const ex = cart.find(c => c.product === p._id);
+      if(ex) ex.qty += qty; else cart.push({ product: p._id, title: p.title, price: p.price, qty });
+      storage.set('mvmp_cart', cart);
+      this.loadCartCount();
+      showToast('Added to cart');
+    },
+
+    loadCartCount(){
+      const c = storage.get('mvmp_cart', []);
+      qs('#topCartCount').textContent = (c.length || 0);
+    },
+
+    renderCart(){
+      this.state.view = 'cart';
+      const root = qs('#view'); root.innerHTML = '';
+      const card = el('div', { class:'card p-4' }, []);
+      card.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Your cart']));
+      const items = storage.get('mvmp_cart', []);
+      if(!items || items.length === 0){
+        card.appendChild(el('div', { class:'p-4 muted' }, ['Cart is empty.']));
+      } else {
+        const list = el('div', { class:'mt-3 space-y-2' }, []);
+        items.forEach((it, idx) => {
+          list.appendChild(el('div', { class: 'flex items-center justify-between p-3 rounded-md border' }, [
+            el('div', {}, [ el('div', { class:'font-medium' }, [ it.title || it.product ]), el('div', { class:'muted text-sm' }, [ '₹' + it.price + ' • qty ' + it.qty ]) ]),
+            el('div', {}, [ el('button', { class:'px-3 py-1 rounded-md border focus-ring', onclick: ()=> { items.splice(idx,1); storage.set('mvmp_cart', items); this.renderCart(); this.loadCartCount(); } }, ['Remove']) ])
+          ]));
+        });
+        const total = items.reduce((s,i)=> s + (i.price * i.qty), 0);
+        card.appendChild(list);
+        card.appendChild(el('div', { class: 'mt-4 text-right' }, [ el('div', { class: 'font-semibold mb-2' }, ['Total: ₹' + total ]), el('div', {}, [ el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> { storage.set('mvmp_buy', items); this.route('checkout'); } }, ['Proceed to Checkout']) ]) ]));
+      }
+      root.appendChild(card);
+    },
+
+    renderCheckout(){
+      this.state.view = 'checkout';
+      const root = qs('#view'); root.innerHTML = '';
+      const items = storage.get('mvmp_buy', storage.get('mvmp_cart', []));
+      const total = (items || []).reduce((s,i)=> s + (i.price * i.qty), 0);
+      const card = el('div', { class: 'card p-4' }, []);
+      card.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Checkout']));
+      if(!items || items.length === 0) {
+        card.appendChild(el('div', { class:'muted p-4' }, ['No items to checkout.']));
+      } else {
+        const form = el('div', { class: 'space-y-3 mt-3' }, []);
+        form.appendChild(el('input', { id:'ship_name', placeholder: 'Full name', class: 'w-full rounded-md px-3 py-2 border focus-ring' }));
+        form.appendChild(el('textarea', { id:'ship_addr', placeholder: 'Shipping address', class: 'w-full rounded-md px-3 py-2 border focus-ring' }));
+        const pay = el('select', { id:'pay_method', class: 'rounded-md px-3 py-2 border focus-ring' }, []);
+        ['card','upi','cod'].forEach(p=> pay.appendChild(el('option', { value: p }, [ p.toUpperCase() ])));
+        form.appendChild(pay);
+        if(total >= 5000){
+          const emiWrap = el('div', {}, [ el('label', {}, ['EMI available for orders above ₹5000']), el('select', { id:'emi_months', class:'ml-2 rounded-md px-2 py-1 border focus-ring' }, [ ['3','6','9','12'].map(m => el('option', { value: m }, [m + ' months'])) ]) ]);
+          form.appendChild(emiWrap);
+        }
+        form.appendChild(el('div', {}, [ el('button', { class: 'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: async ()=> {
+          const name = qs('#ship_name').value.trim();
+          const addr = qs('#ship_addr').value.trim();
+          const method = qs('#pay_method').value;
+          if(!name || !addr) { showToast('Enter name and address'); return; }
+          // simulate order create
+          try {
+            const payload = { user: storage.get('user')?.id || 'guest', items, totalAmount: total, shippingAddress: { name, address: addr }, paymentMethod: method };
+            await apiFetch('/orders', { method: 'POST', body: payload });
+            showToast('Order placed successfully');
+            storage.rawSet('mvmp_cart', JSON.stringify([]));
+            storage.rawSet('mvmp_buy', JSON.stringify([]));
+            this.loadCartCount();
+            this.route('profile');
+          } catch(e){
+            console.error(e); showToast('Order failed');
+          }
+        } }, ['Place Order']) ]) );
+        card.appendChild(form);
+        card.appendChild(el('div', { class:'mt-3 muted' }, [ 'Order total: ₹' + total ]));
+      }
+      root.appendChild(card);
+    },
+
+    // ---------- Dashboard & analytics ----------
+    async loadAnalytics(){
+      try {
+        const res = await apiFetch('/analytics');
+        this.state.analytics = res;
+      } catch(e){
+        console.error('analytics error', e);
+        // fallback sample
+        this.state.analytics = mockApi('/analytics');
+      }
+    },
+
+    async renderDashboard(){
+      this.state.view = 'dashboard';
+      const root = qs('#view'); root.innerHTML = '';
+      const dash = el('div', { class:'card p-4' }, []);
+      dash.appendChild(el('div', { class:'panel-head' }, [ el('h3', { class:'text-lg font-semibold' }, ['Dashboard']) ]));
+      // analytics kpis
+      const kpis = el('div', { class:'grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4' }, []);
+      kpis.appendChild(el('div', { class:'p-4 rounded-md' }, [ el('div', { class:'muted' }, ['Total sales']), el('div', { class:'text-2xl font-bold mt-2' }, ['₹' + (this.state.analytics?.sales?.reduce((a,b)=>a+b,0) || 128000)]) ]));
+      kpis.appendChild(el('div', { class:'p-4 rounded-md' }, [ el('div', { class:'muted' }, ['Orders (30d)']), el('div', { class:'text-2xl font-bold mt-2' }, [ (storage.get('demo_orders') || 382) ]) ]));
+      kpis.appendChild(el('div', { class:'p-4 rounded-md' }, [ el('div', { class:'muted' }, ['Active vendors']), el('div', { class:'text-2xl font-bold mt-2' }, [ (this.state.analytics?.vendors?.length || 22) ]) ]));
+      dash.appendChild(kpis);
+
+      // charts
+      const charts = el('div', { class:'grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 p-4' }, []);
+      const salesCard = el('div', { class:'card p-4' }, []);
+      salesCard.appendChild(el('h4', { class:'font-semibold mb-2' }, ['Monthly Sales']));
+      salesCard.appendChild(el('canvas', { id: 'salesChart', width: '600', height: '240' }));
+      charts.appendChild(salesCard);
+
+      const vendorCard = el('div', { class:'card p-4' }, []);
+      vendorCard.appendChild(el('h4', { class:'font-semibold mb-2' }, ['Top Vendors']));
+      vendorCard.appendChild(el('canvas', { id: 'vendorChart', width: '400', height: '240' }));
+      charts.appendChild(vendorCard);
+
+      dash.appendChild(charts);
+      root.appendChild(dash);
+
+      // render charts with data
+      setTimeout(()=>{
+        const salesData = this.state.analytics?.sales || Array.from({length:12}).map(()=> Math.round(1000 + Math.random() * 4000));
+        const labels = Array.from({length:12}).map((_,i)=> {
+          const d = new Date(); d.setMonth(d.getMonth() - (11 - i));
+          return d.toLocaleString(undefined, { month: 'short' });
+        });
+        const ctx = qs('#salesChart');
+        if(ctx) new Chart(ctx.getContext('2d'), { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data: salesData, backgroundColor: 'rgba(15,111,255,0.7)' }] }, options: { responsive:true } });
+
+        const vendorData = this.state.analytics?.vendors || [ { name:'Vendor A', sales:15000 }, { name:'Vendor B', sales:9000 }, { name:'Vendor C', sales:7000 } ];
+        const vendorCtx = qs('#vendorChart');
+        if(vendorCtx) new Chart(vendorCtx.getContext('2d'), { type: 'doughnut', data: { labels: vendorData.map(v => v.name), datasets: [{ data: vendorData.map(v => v.sales), backgroundColor: ['#0f6fff','#4f46e5','#ff7a59','#f59e0b'] }] }, options: { responsive:true } });
+      }, 60);
+    },
+
+    // ---------- Profile / Settings / Admin ----------
+    async renderProfile(){
+      this.state.view = 'profile';
+      const root = qs('#view'); root.innerHTML = '';
+      const card = el('div', { class:'card p-4' }, []);
+      const u = storage.get('user', { name: 'Guest', email: ''});
+      card.appendChild(el('div', { class:'flex items-center gap-4' }, [
+        el('div', { class:'w-20 h-20 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 grid place-items-center text-white text-2xl font-bold' }, [ (u.name || 'G').slice(0,1).toUpperCase() ]),
+        el('div', {}, [ el('h3', { class:'font-semibold' }, [ u.name || 'Guest' ]), el('div', { class:'muted' }, [ u.email || '' ]), el('div', { class:'mt-2' }, [ el('button', { class:'px-3 py-1 rounded-md border focus-ring', onclick: ()=> this.route('settings') }, ['Edit Profile']) ]) ])
+      ]));
+      // orders
+      const ocard = el('div', { class:'card p-4 mt-4' }, []);
+      ocard.appendChild(el('h4', { class:'font-semibold' }, ['Your Orders']));
+      try {
+        const orders = await apiFetch('/orders/' + (u.id || 'guest'));
+        (orders || []).slice(0,6).forEach(o => {
+          ocard.appendChild(el('div', { class:'flex items-center justify-between p-3 border rounded-md mt-2' }, [ el('div', {}, [ el('div', { class:'font-medium' }, ['Order #' + o._id]), el('div', { class:'muted' }, ['₹' + o.totalAmount]) ]), el('div', { class:'muted' }, [ o.status ]) ]));
+        });
+      } catch(e){ console.error(e); ocard.appendChild(el('div', { class:'muted' }, ['No orders or backend error'])); }
+      root.appendChild(card); root.appendChild(ocard);
+    },
+
+    renderSettings(){
+      this.state.view = 'settings';
+      const root = qs('#view'); root.innerHTML = '';
+      const card = el('div', { class:'card p-4' }, []);
+      card.appendChild(el('h3', { class:'font-semibold' }, ['Settings']));
+      const form = el('div', { class:'mt-3 space-y-3' }, []);
+      form.appendChild(el('input', { id: 'pw_old', placeholder: 'Current password', type: 'password', class:'w-full rounded-md px-3 py-2 border focus-ring' }));
+      form.appendChild(el('input', { id: 'pw_new', placeholder: 'New password', type: 'password', class:'w-full rounded-md px-3 py-2 border focus-ring' }));
+      form.appendChild(el('div', {}, [ el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> showToast('Password change requires backend implementation') }, ['Change Password']) ]));
+      card.appendChild(form);
+      root.appendChild(card);
+    },
+
+    // ---------- Admin panel (simple controls) ----------
+    async renderAdminPanel(){
+      this.state.view = 'admin';
+      const root = qs('#view'); root.innerHTML = '';
+      const card = el('div', { class:'card p-4' }, []);
+      card.appendChild(el('h3', { class:'font-semibold' }, ['Admin Panel - Demo']));
+      // vendor management table
+      const tableWrap = el('div', { class:'mt-3 overflow-x-auto' }, []);
+      const tbl = el('table', {}, []);
+      tbl.appendChild(el('thead', {}, [ el('tr', {}, [ el('th', {}, ['Vendor']), el('th', {}, ['Email']), el('th', {}, ['Products']), el('th', {}, ['Actions']) ]) ]));
+      const tbody = el('tbody', {}, []);
+      // mock vendors
+      const vendors = [
+        { id:'v1', name:'Vendor A', email:'a@demo.com', products: 12 },
+        { id:'v2', name:'Vendor B', email:'b@demo.com', products: 8 },
+        { id:'v3', name:'Vendor C', email:'c@demo.com', products: 5 }
+      ];
+      vendors.forEach(v => {
+        tbody.appendChild(el('tr', {}, [
+          el('td', {}, [ v.name ]),
+          el('td', {}, [ v.email ]),
+          el('td', {}, [ v.products ]),
+          el('td', {}, [ el('button', { class:'px-3 py-1 rounded-md border focus-ring', onclick: ()=> showToast('Suspend vendor - demo') }, ['Suspend']) ])
+        ]));
+      });
+      tbl.appendChild(tbody);
+      tableWrap.appendChild(tbl);
+      card.appendChild(tableWrap);
+      root.appendChild(card);
+    },
+
+    // vendor orders & product management are implemented in vendor dashboard (not full-featured here)
+
+    // ---------- small UI helpers ----------
+    filterByCategory(cat){
+      this.route('products', { category: cat });
+    },
+
+    renderLogin(){
+      this.state.view = 'login';
+      const root = qs('#view'); root.innerHTML = '';
+      const c = el('div', { class:'card p-6 max-w-md mx-auto' }, []);
+      c.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Login']));
+      c.appendChild(el('input', { id:'login_identifier', placeholder:'Email or phone', class:'w-full rounded-md px-3 py-2 border focus-ring mt-3' }));
+      c.appendChild(el('input', { id:'login_password', placeholder:'Password', type:'password', class:'w-full rounded-md px-3 py-2 border focus-ring mt-2' }));
+      c.appendChild(el('div', { class:'mt-3 flex gap-2' }, [
+        el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: async ()=> {
+          // demo login flow
+          await this.loginDemo();
+        } }, ['Login (demo)']),
+        el('button', { class:'px-4 py-2 rounded-md border focus-ring', onclick: ()=> this.route('signup') }, ['Create account'])
+      ]));
+      root.appendChild(c);
+    },
+
+    renderSignup(){
+      this.state.view = 'signup';
+      const root = qs('#view'); root.innerHTML = '';
+      const c = el('div', { class:'card p-6 max-w-lg mx-auto' }, []);
+      c.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Create account']));
+      c.appendChild(el('input', { id:'su_name', placeholder:'Full name', class:'w-full rounded-md px-3 py-2 border focus-ring mt-3' }));
+      c.appendChild(el('input', { id:'su_email', placeholder:'Email', class:'w-full rounded-md px-3 py-2 border focus-ring mt-2' }));
+      c.appendChild(el('input', { id:'su_password', placeholder:'Password', type:'password', class:'w-full rounded-md px-3 py-2 border focus-ring mt-2' }));
+      c.appendChild(el('div', { class:'mt-3' }, [ el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: async ()=> {
+        const name = qs('#su_name').value.trim();
+        const email = qs('#su_email').value.trim();
+        const pw = qs('#su_password').value.trim();
+        if(!name || !email || !pw) { showToast('Fill required fields'); return; }
+        // demo: just save locally and auto login
+        const user = { id: 'user-' + Date.now(), name, email, role: 'customer' };
+        storage.set('user', user);
+        storage.rawSet('token','demo-token');
+        showToast('Account created - demo');
+        this.updateTopUserArea();
+        this.route('dashboard');
+      } }, ['Create Account']) ]) );
+      root.appendChild(c);
+    },
+
+    renderForgot(){
+      this.state.view = 'forgot';
+      const root = qs('#view'); root.innerHTML = '';
+      const c = el('div', { class:'card p-6 max-w-md mx-auto' }, []);
+      c.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Forgot password']));
+      c.appendChild(el('input', { id:'fp_identifier', placeholder:'Enter email or phone', class:'w-full rounded-md px-3 py-2 border focus-ring mt-3' }));
+      c.appendChild(el('div', { class:'mt-3' }, [ el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: ()=> { showToast('OTP demo sent'); this.route('otp'); } }, ['Send OTP']) ]) );
+      root.appendChild(c);
+    },
+
+    renderOtp(){
+      this.state.view = 'otp';
+      const root = qs('#view'); root.innerHTML = '';
+      const c = el('div', { class:'card p-6 max-w-md mx-auto' }, []);
+      c.appendChild(el('h3', { class:'text-lg font-semibold' }, ['Verify OTP / Reset password']));
+      c.appendChild(el('input', { id:'otp_identifier', placeholder:'Email or phone', class:'w-full rounded-md px-3 py-2 border focus-ring mt-3' }));
+      c.appendChild(el('input', { id:'otp_code', placeholder:'OTP code', class:'w-full rounded-md px-3 py-2 border focus-ring mt-2' }));
+      c.appendChild(el('input', { id:'otp_newpass', placeholder:'New password (optional)', type:'password', class:'w-full rounded-md px-3 py-2 border focus-ring mt-2' }));
+      c.appendChild(el('div', { class:'mt-3' }, [ el('button', { class:'px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white focus-ring', onclick: async ()=> {
+        showToast('OTP verified - demo');
+        this.route('login');
+      } }, ['Verify / Reset']) ]) );
+      root.appendChild(c);
+    }
+  };
+
+  // expose routeTo helper
+  window.routeTo = (p) => app.route(p);
+
+  // init app on DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', async () => {
+    await app.init();
+
+    // initial route
+    if(location.hash) app.routeFromHash();
+
+    // attach nav active toggles initial
+    qsa('.bottom-nav button').forEach(b => {
+      b.addEventListener('click', ()=> {
+        qsa('.bottom-nav button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
+    });
+
+    // quick demo: if no user, set demo demo values
+    if(!storage.get('demo_sales')) storage.set('demo_sales', Array.from({length:12}).map(()=> Math.round(1000 + Math.random()*4000)));
+    if(!storage.get('demo_total_sales')) storage.set('demo_total_sales', 128000);
+    if(!storage.get('demo_orders')) storage.set('demo_orders', 382);
+  });
+
+  // expose app to console for debug
+  window.app = app;
+
+  </script>
+</body>
+</html>

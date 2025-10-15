@@ -1,0 +1,69 @@
+/* Dark + Gold theme */
+:root{
+  --bg:#0f1115;
+  --card:#1a1c20;
+  --text:#e6dfd1;
+  --muted:#a8a29e;
+  --gold:#cfa12f;
+  --gold-contrast:#2b2b2b;
+}
+
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  margin:0;
+  padding:0;
+}
+
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:16px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+  border:1px solid rgba(255,255,255,0.03);
+  border-radius:8px;
+  padding:12px;
+  color:var(--text);
+}
+
+.btn-gold{
+  background: linear-gradient(90deg, var(--gold), #e6b93b);
+  border:none;
+  color:var(--gold-contrast);
+  padding:8px 12px;
+  border-radius:6px;
+  font-weight:600;
+}
+
+input.form-control, .form-control{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.08);
+  color:var(--text);
+  padding:8px;
+  border-radius:6px;
+}
+
+.card img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+h3, h4, h5{
+  margin:0 0 8px 0;
+}
+
+/* layout helper */
+.d-flex{display:flex}
+.justify-content-center{justify-content:center}
+.align-items-center{align-items:center}
+.w-100{width:100%}
+.mt-3{margin-top:1rem}
+.mb-3{margin-bottom:1rem}
+.p-4{padding:1rem}
+.text-center{text-align:center}
