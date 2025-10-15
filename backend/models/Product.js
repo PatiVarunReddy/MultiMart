@@ -101,9 +101,9 @@ const productSchema = new mongoose.Schema({
 
 // Generate slug from name and vendor
 productSchema.pre('save', function(next) {
-  if (this.isModified('name')) {
+  if (!this.slug || this.isModified('name')) {
     const baseSlug = this.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    this.slug = `${baseSlug}-${Date.now()}`;
+    this.slug = `${baseSlug}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   }
   next();
 });
