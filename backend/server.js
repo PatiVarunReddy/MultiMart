@@ -95,10 +95,18 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Test Route
-app.get('/', (req, res) => {
-  res.json({ message: '🚀 MultiMart API is running!' });
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// SPA fallback: serve index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Test Route (remove this as it's now handled by SPA)
+// app.get('/', (req, res) => {
+//   res.json({ message: '🚀 MultiMart API is running!' });
+// });
 
 // Error Handler
 app.use((err, req, res, next) => {
