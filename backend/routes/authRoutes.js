@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { register, login, getMe, requestOtp, verifyOtp } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
-const { otpRequestLimiter } = require('../middleware/rateLimiter');
-const { validate, registerSchema, loginSchema, requestOtpSchema, verifyOtpSchema } = require('../middleware/validation');
+import { register, login, getMe, requestOtp, verifyOtp } from '../controllers/authController.js';
+import { protect } from '../middleware/auth.js';
+import { otpRequestLimiter } from '../middleware/rateLimiter.js';
+import { validate, registerSchema, loginSchema, requestOtpSchema, verifyOtpSchema } from '../middleware/validation.js';
 
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
@@ -11,4 +11,4 @@ router.post('/request-otp', otpRequestLimiter, validate(requestOtpSchema), reque
 router.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
 router.get('/me', protect, getMe);
 
-module.exports = router;
+export default router;

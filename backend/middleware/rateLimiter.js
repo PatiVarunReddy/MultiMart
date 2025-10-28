@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+import rateLimit from 'express-rate-limit';
 
 // Limit to 5 requests per 15 minutes per IP by default
 const otpRequestLimiter = rateLimit({
@@ -7,4 +7,4 @@ const otpRequestLimiter = rateLimit({
   message: { success: false, message: 'Too many OTP requests from this IP, please try again later' }
 });
 
-module.exports = { otpRequestLimiter };
+export { otpRequestLimiter };

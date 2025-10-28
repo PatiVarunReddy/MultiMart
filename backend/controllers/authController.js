@@ -1,17 +1,17 @@
-const User = require('../models/User');
-const Vendor = require('../models/Vendor');
-const Otp = require('../models/Otp');
-const generateToken = require('../utils/generateToken');
-const { sendMail } = require('../utils/mailer');
-const { sendSms } = require('../utils/sms');
+import User from '../models/User.js';
+import Vendor from '../models/Vendor.js';
+import Otp from '../models/Otp.js';
+import generateToken from '../utils/generateToken.js';
+import { sendMail } from '../utils/mailer.js';
+import { sendSms } from '../utils/sms.js';
 
-const crypto = require('crypto');
-const ms = require('ms') || ((v)=>1000*60*5);
+import crypto from 'crypto';
+import ms from 'ms';
 
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { name, email, password, role, phone } = req.body;
 
@@ -66,7 +66,7 @@ exports.register = async (req, res) => {
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -110,7 +110,7 @@ exports.login = async (req, res) => {
 // @desc    Get current user
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate('vendorId');
     
@@ -129,7 +129,7 @@ exports.getMe = async (req, res) => {
 // @desc Request OTP for login (email or phone)
 // @route POST /api/auth/request-otp
 // @access Public
-exports.requestOtp = async (req, res) => {
+export const requestOtp = async (req, res) => {
   try {
     const { identifier } = req.body; // can be email or phone (with +country)
     if (!identifier) return res.status(400).json({ success: false, message: 'Identifier required' });
@@ -201,7 +201,7 @@ exports.requestOtp = async (req, res) => {
 // @desc Verify OTP and login
 // @route POST /api/auth/verify-otp
 // @access Public
-exports.verifyOtp = async (req, res) => {
+export const verifyOtp = async (req, res) => {
   try {
     const { identifier, code } = req.body;
     if (!identifier || !code) return res.status(400).json({ success: false, message: 'Identifier and code required' });

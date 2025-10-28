@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getProducts,
   getProduct,
   createProduct,
@@ -8,8 +8,8 @@ const {
   deleteProduct,
   getVendorProducts,
   getMyProducts
-} = require('../controllers/productController');
-const { protect, authorize } = require('../middleware/auth');
+} from '../controllers/productController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 router.route('/')
   .get(getProducts)
@@ -24,4 +24,4 @@ router.route('/:id')
 
 router.get('/vendor/:vendorId', getVendorProducts);
 
-module.exports = router;
+export default router;

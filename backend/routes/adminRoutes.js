@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getDashboardStats,
   getPendingReviews,
   getAllReviews,
   approveReview,
   rejectReview,
   deleteReview
-} = require('../controllers/adminController');
-const { protect, authorize } = require('../middleware/auth');
+} from '../controllers/adminController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 // All routes are protected and require admin role
 router.use(protect, authorize('admin'));
@@ -23,4 +23,4 @@ router.put('/reviews/:id/approve', approveReview);
 router.put('/reviews/:id/reject', rejectReview);
 router.delete('/reviews/:id', deleteReview);
 
-module.exports = router;
+export default router;

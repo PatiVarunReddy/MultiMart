@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getCategories,
   createCategory,
   updateCategory,
   deleteCategory
-} = require('../controllers/categoryController');
-const { protect, authorize } = require('../middleware/auth');
+} from '../controllers/categoryController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 router.route('/')
   .get(getCategories)
@@ -16,4 +16,4 @@ router.route('/:id')
   .put(protect, authorize('admin'), updateCategory)
   .delete(protect, authorize('admin'), deleteCategory);
 
-module.exports = router;
+export default router;

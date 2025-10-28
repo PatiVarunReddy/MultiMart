@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 function validate(schema) {
   return (req, res, next) => {
@@ -30,7 +30,7 @@ const verifyOtpSchema = Joi.object({
   code: Joi.string().length(6).required()
 });
 
-module.exports = {
+export {
   validate,
   registerSchema,
   loginSchema,

@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getMyInventory,
   getBrowseProducts,
   sourceProduct,
   updateInventory,
   deleteInventory,
   getInventoryAnalytics
-} = require('../controllers/inventoryController');
-const { protect, authorize } = require('../middleware/auth');
+} from '../controllers/inventoryController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 // All routes require authentication and vendor role
 router.use(protect);
@@ -21,4 +21,4 @@ router.get('/analytics', getInventoryAnalytics);
 router.put('/:id', updateInventory);
 router.delete('/:id', deleteInventory);
 
-module.exports = router;
+export default router;

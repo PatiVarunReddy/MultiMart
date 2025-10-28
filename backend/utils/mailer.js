@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 // Read SMTP config from env
 let SMTP_HOST = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
@@ -103,4 +103,4 @@ async function sendMail({ to, subject, html, text }) {
   }
 }
 
-module.exports = { sendMail };
+export { sendMail };

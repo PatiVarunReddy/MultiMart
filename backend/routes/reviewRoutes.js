@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getProductReviews,
   createReview,
   deleteReview,
   markReviewHelpful
-} = require('../controllers/reviewController');
-const { protect } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+} from '../controllers/reviewController.js';
+import { protect } from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
 
 // Routes with file upload
 router.post('/', protect, upload.array('images', 5), createReview);
@@ -17,4 +17,4 @@ router.get('/product/:productId', getProductReviews);
 router.delete('/:id', protect, deleteReview);
 router.post('/:id/helpful', protect, markReviewHelpful);
 
-module.exports = router;
+export default router;
