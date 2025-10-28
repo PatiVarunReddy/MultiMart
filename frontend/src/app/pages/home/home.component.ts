@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
   selector: 'app-home',
   template: `
     <div class="container" style="margin-top: 2rem;">
-      <h1>Welcome to Multi-Vendor Marketplace</h1>
+  <h1>Welcome to MultiMart</h1>
       <p style="font-size: 1.1rem; margin: 1rem 0;">Discover amazing products from multiple vendors!</p>
       
       <!-- Search and Filter Section -->

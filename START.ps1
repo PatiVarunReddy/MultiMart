@@ -1,6 +1,6 @@
 # MEAN Stack Multi-Vendor Marketplace - Quick Start Guide
 
-Write-Host "🚀 Multi-Vendor Marketplace Platform" -ForegroundColor Cyan
+Write-Host "🚀 Welcome to MultiMart" -ForegroundColor Cyan
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host ""
 

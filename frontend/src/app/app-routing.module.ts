@@ -8,16 +8,21 @@ import { ProductDetailComponent } from './pages/products/product-detail/product-
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { VendorDashboardComponent } from './pages/vendor/dashboard/dashboard.component';
-import { AdminDashboardComponent } from './pages/admin/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
+import { VerifyOtpComponent } from './pages/auth/verify-otp/verify-otp.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'verify-otp', component: VerifyOtpComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'products', component: ProductListComponent },
-  { path: 'products/:id', component: ProductDetailComponent },
+  { 
+    path: 'products/:id',
+    loadComponent: () => import('./pages/products/product-detail/product-detail.component')
+      .then(m => m.ProductDetailComponent)
+  },
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { 
@@ -28,7 +33,8 @@ const routes: Routes = [
   },
   { 
     path: 'admin/dashboard', 
-    component: AdminDashboardComponent, 
+    loadComponent: () => import('./pages/admin/dashboard/dashboard.component')
+      .then(m => m.AdminDashboardComponent),
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['admin'] }
   },

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
+import { CartService } from '../../../services/cart.service';
 
 @Component({
   selector: 'app-register',
@@ -16,27 +17,47 @@ import { AuthService } from '../../../services/auth.service';
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label>Name</label>
-            <input type="text" formControlName="name" class="form-control">
+            <input 
+              type="text" 
+              formControlName="name" 
+              class="form-control"
+              placeholder="Enter your full name"
+              autocomplete="name">
           </div>
           
           <div class="form-group">
             <label>Email</label>
-            <input type="email" formControlName="email" class="form-control">
+            <input 
+              type="email" 
+              formControlName="email" 
+              class="form-control"
+              placeholder="Enter your email"
+              autocomplete="email">
           </div>
           
           <div class="form-group">
             <label>Password</label>
-            <input type="password" formControlName="password" class="form-control">
+            <input 
+              type="password" 
+              formControlName="password" 
+              class="form-control"
+              placeholder="Enter a strong password"
+              autocomplete="new-password">
           </div>
           
           <div class="form-group">
             <label>Phone</label>
-            <input type="text" formControlName="phone" class="form-control">
+            <input 
+              type="tel" 
+              formControlName="phone" 
+              class="form-control"
+              placeholder="Enter your phone number"
+              autocomplete="tel">
           </div>
           
           <div class="form-group">
             <label>Register as</label>
-            <select formControlName="role" class="form-control">
+            <select formControlName="role" class="form-control" autocomplete="off">
               <option value="customer">Customer</option>
               <option value="vendor">Vendor/Seller</option>
             </select>
@@ -64,7 +85,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cartService: CartService
   ) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
@@ -87,6 +109,8 @@ export class RegisterComponent {
         this.loading = false;
         if (response.success) {
           this.success = 'Registration successful! Redirecting...';
+          // Load cart after successful registration
+          this.cartService.loadCartCount();
           setTimeout(() => {
             this.router.navigate(['/']);
           }, 1500);

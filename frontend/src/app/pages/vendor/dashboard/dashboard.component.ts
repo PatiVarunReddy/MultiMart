@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductService } from '../../../services/product.service';
 import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -16,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
           <lucide-icon name="package" class="stat-icon"></lucide-icon>
           <div class="stat-info">
             <h3>{{products.length}}</h3>
-            <p>Total Products</p>
+            <p>My Products</p>
           </div>
         </div>
         <div class="stat-card">
@@ -33,9 +34,49 @@ import { HttpClient } from '@angular/common/http';
             <p>Total Sales</p>
           </div>
         </div>
+        <div class="stat-card" *ngIf="inventoryStats">
+          <lucide-icon name="box" class="stat-icon"></lucide-icon>
+          <div class="stat-info">
+            <h3>{{inventoryStats.totalItems || 0}}</h3>
+            <p>Sourced Items</p>
+          </div>
+        </div>
       </div>
       
-      <div class="card">
+      <!-- TABS -->
+      <div class="tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'products'"
+          (click)="switchTab('products')">
+          <lucide-icon name="package" style="width: 18px; height: 18px;"></lucide-icon>
+          My Products
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'browse'"
+          (click)="switchTab('browse')">
+          <lucide-icon name="shopping-bag" style="width: 18px; height: 18px;"></lucide-icon>
+          Browse Inventory
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'inventory'"
+          (click)="switchTab('inventory')">
+          <lucide-icon name="box" style="width: 18px; height: 18px;"></lucide-icon>
+          My Inventory
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'orders'"
+          (click)="switchTab('orders')">
+          <lucide-icon name="truck" style="width: 18px; height: 18px;"></lucide-icon>
+          Orders
+        </button>
+      </div>
+      
+      <!-- MY PRODUCTS TAB -->
+      <div class="card" *ngIf="activeTab === 'products'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h2>My Products</h2>
           <button class="btn btn-primary" (click)="toggleProductForm()">
@@ -54,7 +95,12 @@ import { HttpClient } from '@angular/common/http';
             <div class="form-row">
               <div class="form-group" style="flex: 2;">
                 <label>Product Name *</label>
-                <input type="text" formControlName="name" class="form-control" placeholder="e.g., iPhone 15 Pro Max">
+                <input 
+                  type="text" 
+                  formControlName="name" 
+                  class="form-control" 
+                  placeholder="e.g., iPhone 15 Pro Max"
+                  autocomplete="off">
                 <small *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="error-text">
                   Product name is required
                 </small>
@@ -62,14 +108,23 @@ import { HttpClient } from '@angular/common/http';
               
               <div class="form-group">
                 <label>Brand</label>
-                <input type="text" formControlName="brand" class="form-control" placeholder="e.g., Apple">
+                <input 
+                  type="text" 
+                  formControlName="brand" 
+                  class="form-control" 
+                  placeholder="e.g., Apple"
+                  autocomplete="organization">
               </div>
             </div>
             
             <div class="form-group">
               <label>Description *</label>
-              <textarea formControlName="description" class="form-control" rows="4" 
-                        placeholder="Detailed product description..."></textarea>
+              <textarea 
+                formControlName="description" 
+                class="form-control" 
+                rows="4" 
+                placeholder="Detailed product description..."
+                autocomplete="off"></textarea>
               <small *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="error-text">
                 Description is required
               </small>
@@ -89,25 +144,45 @@ import { HttpClient } from '@angular/common/http';
               
               <div class="form-group">
                 <label>Price (₹) *</label>
-                <input type="number" formControlName="price" class="form-control" placeholder="0">
+                <input 
+                  type="number" 
+                  formControlName="price" 
+                  class="form-control" 
+                  placeholder="0"
+                  autocomplete="off">
               </div>
               
               <div class="form-group">
                 <label>Discount Price (₹)</label>
-                <input type="number" formControlName="discountPrice" class="form-control" placeholder="Optional">
+                <input 
+                  type="number" 
+                  formControlName="discountPrice" 
+                  class="form-control" 
+                  placeholder="Optional"
+                  autocomplete="off">
               </div>
               
               <div class="form-group">
                 <label>Stock Quantity *</label>
-                <input type="number" formControlName="stock" class="form-control" placeholder="0">
+                <input 
+                  type="number" 
+                  formControlName="stock" 
+                  class="form-control" 
+                  placeholder="0"
+                  autocomplete="off">
               </div>
             </div>
             
             <div class="form-group">
               <label>Product Images (URLs) *</label>
               <div *ngFor="let img of imageInputs; let i = index" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                <input type="url" [(ngModel)]="imageInputs[i]" [ngModelOptions]="{standalone: true}"
-                       class="form-control" placeholder="https://example.com/image.jpg">
+                <input 
+                  type="url" 
+                  [(ngModel)]="imageInputs[i]" 
+                  [ngModelOptions]="{standalone: true}"
+                  class="form-control" 
+                  placeholder="https://example.com/image.jpg"
+                  autocomplete="url">
                 <button type="button" (click)="removeImageInput(i)" class="btn btn-danger" style="padding: 0.5rem 1rem; display: flex; align-items: center;">
                   <lucide-icon name="x" style="width: 16px; height: 16px;"></lucide-icon>
                 </button>
@@ -123,8 +198,12 @@ import { HttpClient } from '@angular/common/http';
             
             <div class="form-group">
               <label>Tags (comma-separated)</label>
-              <input type="text" formControlName="tags" class="form-control" 
-                     placeholder="e.g., smartphone, electronics, 5G">
+              <input 
+                type="text" 
+                formControlName="tags" 
+                class="form-control" 
+                placeholder="e.g., smartphone, electronics, 5G"
+                autocomplete="off">
               <small style="display: block; margin-top: 0.5rem; color: #7f8c8d;">
                 Separate tags with commas for better search
               </small>
@@ -224,6 +303,230 @@ import { HttpClient } from '@angular/common/http';
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      
+      <!-- BROWSE INVENTORY TAB -->
+      <div class="card" *ngIf="activeTab === 'browse'">
+        <h2 style="margin-bottom: 1.5rem;">Browse Products from Other Vendors</h2>
+        <p style="color: #7f8c8d; margin-bottom: 1.5rem;">Source quality products from other vendors to expand your inventory</p>
+        
+        <div *ngIf="message && activeTab === 'browse'" [class]="messageClass" style="margin-bottom: 1rem;">{{message}}</div>
+        
+        <div *ngIf="browseProducts.length === 0" class="empty-state">
+          <lucide-icon name="shopping-bag" style="width: 64px; height: 64px; color: #bdc3c7;"></lucide-icon>
+          <p style="font-size: 1.2rem;">No products available</p>
+        </div>
+        
+        <div class="products-grid" *ngIf="browseProducts.length > 0">
+          <div class="product-browse-card" *ngFor="let product of browseProducts">
+            <img [src]="product.images[0] || 'https://via.placeholder.com/200'" class="product-browse-image">
+            <div class="product-browse-content">
+              <h4>{{product.name}}</h4>
+              <p class="product-browse-vendor">
+                <lucide-icon name="store" style="width: 14px; height: 14px;"></lucide-icon>
+                {{product.vendor?.storeName}}
+              </p>
+              <p class="product-browse-category">{{product.category?.name}}</p>
+              <div class="product-browse-price">
+                <span class="price-main">₹{{product.discountPrice || product.price}}</span>
+                <span class="stock-info">{{product.stock}} in stock</span>
+              </div>
+              <button class="btn btn-primary" (click)="openSourceModal(product)" style="width: 100%; margin-top: 1rem;">
+                <lucide-icon name="plus" style="width: 16px; height: 16px;"></lucide-icon>
+                Source This Product
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- MY INVENTORY TAB -->
+      <div class="card" *ngIf="activeTab === 'inventory'">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2>My Sourced Inventory</h2>
+          <button class="btn btn-success" (click)="loadInventoryAnalytics()">
+            <lucide-icon name="bar-chart" style="width: 18px; height: 18px; margin-right: 0.5rem;"></lucide-icon>
+            View Analytics
+          </button>
+        </div>
+        
+        <div *ngIf="inventoryAnalytics" class="analytics-grid" style="margin-bottom: 2rem;">
+          <div class="analytics-card">
+            <h4>Total Investment</h4>
+            <p class="analytics-value">₹{{inventoryAnalytics.totalInvestment}}</p>
+          </div>
+          <div class="analytics-card">
+            <h4>Potential Revenue</h4>
+            <p class="analytics-value">₹{{inventoryAnalytics.totalPotentialRevenue}}</p>
+          </div>
+          <div class="analytics-card">
+            <h4>Expected Profit</h4>
+            <p class="analytics-value" [style.color]="inventoryAnalytics.expectedProfit > 0 ? '#27ae60' : '#e74c3c'">
+              ₹{{inventoryAnalytics.expectedProfit}}
+            </p>
+          </div>
+          <div class="analytics-card">
+            <h4>Avg Profit Margin</h4>
+            <p class="analytics-value">{{inventoryAnalytics.averageProfitMargin}}%</p>
+          </div>
+        </div>
+        
+        <div *ngIf="inventory.length === 0" class="empty-state">
+          <lucide-icon name="box" style="width: 64px; height: 64px; color: #bdc3c7;"></lucide-icon>
+          <p style="font-size: 1.2rem;">No inventory items yet</p>
+          <p>Browse products from other vendors to build your inventory</p>
+        </div>
+        
+        <table *ngIf="inventory.length > 0">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Source Vendor</th>
+              <th>Quantity</th>
+              <th>Purchase Price</th>
+              <th>Selling Price</th>
+              <th>Profit Margin</th>
+              <th>Total Value</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of inventory">
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <img [src]="item.sourceProduct?.images?.[0] || 'https://via.placeholder.com/40'" 
+                       style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                  <span>{{item.sourceProduct?.name}}</span>
+                </div>
+              </td>
+              <td>{{item.sourceVendor?.storeName}}</td>
+              <td>{{item.quantity}}</td>
+              <td>₹{{item.purchasePrice}}</td>
+              <td>₹{{item.sellingPrice}}</td>
+              <td>
+                <span [style.color]="item.profitMargin > 20 ? '#27ae60' : item.profitMargin > 10 ? '#f39c12' : '#e74c3c'">
+                  {{item.profitMargin}}%
+                </span>
+              </td>
+              <td><strong>₹{{item.totalCost}}</strong></td>
+              <td>
+                <span class="badge" 
+                      [class.badge-success]="item.status === 'active'"
+                      [class.badge-warning]="item.status === 'out-of-stock'"
+                      [class.badge-danger]="item.status === 'discontinued'">
+                  {{item.status}}
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button (click)="updateInventoryItem(item)" class="btn-edit">Edit</button>
+                  <button (click)="deleteInventoryItem(item._id)" class="btn-delete">Delete</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- ORDERS TAB -->
+      <div class="card" *ngIf="activeTab === 'orders'">
+        <h2 style="margin-bottom: 1.5rem;">Orders</h2>
+        
+        <div *ngIf="orders.length === 0" class="empty-state">
+          <lucide-icon name="truck" style="width: 64px; height: 64px; color: #bdc3c7;"></lucide-icon>
+          <p style="font-size: 1.2rem;">No orders yet</p>
+        </div>
+        
+        <div *ngIf="orders.length > 0">
+          <div class="order-card" *ngFor="let order of orders" style="margin-bottom: 1rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <h4>Order #{{order._id.slice(-8)}}</h4>
+                <p style="color: #7f8c8d; margin: 0.5rem 0;">
+                  {{order.orderItems.length}} item(s) • ₹{{order.totalPrice}}
+                </p>
+                <p style="color: #7f8c8d; margin: 0;">
+                  {{order.createdAt | date:'medium'}}
+                </p>
+              </div>
+              <span class="badge badge-{{order.orderStatus === 'Delivered' ? 'success' : 'warning'}}">
+                {{order.orderStatus}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SOURCE PRODUCT MODAL -->
+      <div class="modal" *ngIf="showSourceModal" (click)="closeSourceModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Source Product</h2>
+            <button (click)="closeSourceModal()" style="background: none; border: none; cursor: pointer;">
+              <lucide-icon name="x" style="width: 24px; height: 24px;"></lucide-icon>
+            </button>
+          </div>
+          
+          <div *ngIf="selectedProduct" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1rem; align-items: start;">
+              <img [src]="selectedProduct.images[0]" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+              <div>
+                <h3>{{selectedProduct.name}}</h3>
+                <p style="color: #7f8c8d;">{{selectedProduct.vendor?.storeName}}</p>
+                <p><strong>Available Stock:</strong> {{selectedProduct.stock}} units</p>
+                <p><strong>Price:</strong> ₹{{selectedProduct.discountPrice || selectedProduct.price}}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="message && showSourceModal" [class]="messageClass" style="margin-bottom: 1rem;">{{message}}</div>
+          
+          <form [formGroup]="sourceForm" (ngSubmit)="submitSourceProduct()">
+            <div class="form-group">
+              <label>Quantity to Source *</label>
+              <input type="number" formControlName="quantity" class="form-control" min="1" [max]="selectedProduct?.stock">
+            </div>
+            
+            <div class="form-group">
+              <label>Purchase Price per Unit *</label>
+              <input type="number" formControlName="purchasePrice" class="form-control" min="0" step="0.01">
+              <small style="color: #7f8c8d;">The price you'll pay to source this product</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Your Selling Price *</label>
+              <input type="number" formControlName="sellingPrice" class="form-control" min="0" step="0.01">
+              <small style="color: #7f8c8d;">The price you'll sell at (recommended: add 20-30% margin)</small>
+            </div>
+            
+            <div class="form-group" *ngIf="sourceForm.get('purchasePrice')?.value && sourceForm.get('sellingPrice')?.value">
+              <div style="padding: 1rem; background: #e8f5e9; border-radius: 8px;">
+                <p style="margin: 0; color: #27ae60;">
+                  <strong>Profit per unit:</strong> 
+                  ₹{{sourceForm.get('sellingPrice')?.value - sourceForm.get('purchasePrice')?.value}}
+                  ({{((sourceForm.get('sellingPrice')?.value - sourceForm.get('purchasePrice')?.value) / sourceForm.get('purchasePrice')?.value * 100).toFixed(1)}}%)
+                </p>
+                <p style="margin: 0.5rem 0 0 0; color: #27ae60;">
+                  <strong>Total Investment:</strong> 
+                  ₹{{sourceForm.get('purchasePrice')?.value * sourceForm.get('quantity')?.value}}
+                </p>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Notes (Optional)</label>
+              <textarea formControlName="notes" class="form-control" rows="2" placeholder="Any notes about this sourcing..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+              <button type="button" (click)="closeSourceModal()" class="btn">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="sourceForm.invalid || loading">
+                {{loading ? 'Sourcing...' : 'Source Product'}}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -401,9 +704,168 @@ import { HttpClient } from '@angular/common/http';
       transform: translateY(0);
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 0;
+    }
+    
+    .tab-button {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #7f8c8d;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    
+    .tab-button:hover {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      font-weight: 600;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .product-browse-card {
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+      background: white;
+    }
+    
+    .product-browse-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    
+    .product-browse-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .product-browse-content {
+      padding: 1rem;
+    }
+    
+    .product-browse-content h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+      color: #2c3e50;
+    }
+    
+    .product-browse-vendor {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+    
+    .product-browse-category {
+      color: #95a5a6;
+      font-size: 0.85rem;
+      margin: 0.3rem 0;
+    }
+    
+    .product-browse-price {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .price-main {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #27ae60;
+    }
+    
+    .stock-info {
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+    
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .analytics-card {
+      padding: 1.5rem;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .analytics-card h4 {
+      margin: 0 0 1rem 0;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .analytics-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+      color: #2c3e50;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .badge-danger {
+      background: #e74c3c;
+    }
   `]
 })
 export class VendorDashboardComponent implements OnInit {
+  // Existing properties
   products: any[] = [];
   orders: any[] = [];
   categories: any[] = [];
@@ -415,12 +877,24 @@ export class VendorDashboardComponent implements OnInit {
   message = '';
   messageClass = '';
   editingProduct: any = null;
+  
+  // New inventory properties
+  activeTab = 'products';
+  inventory: any[] = [];
+  browseProducts: any[] = [];
+  inventoryStats: any = null;
+  inventoryAnalytics: any = null;
+  showSourceModal = false;
+  selectedProduct: any = null;
+  sourceForm: FormGroup;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
     private orderService: OrderService,
     private authService: AuthService,
+    private inventoryService: InventoryService,
     private http: HttpClient
   ) {
     this.productForm = this.fb.group({
@@ -435,6 +909,13 @@ export class VendorDashboardComponent implements OnInit {
       isFeatured: [false],
       freeShipping: [false],
       shippingCost: [0]
+    });
+    
+    this.sourceForm = this.fb.group({
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      purchasePrice: [0, [Validators.required, Validators.min(0)]],
+      sellingPrice: [0, [Validators.required, Validators.min(0)]],
+      notes: ['']
     });
   }
 
@@ -593,4 +1074,168 @@ export class VendorDashboardComponent implements OnInit {
       });
     }
   }
+  
+  // New inventory methods
+  switchTab(tab: string): void {
+    this.activeTab = tab;
+    this.message = '';
+    this.showAddProduct = false;
+    
+    if (tab === 'browse' && this.browseProducts.length === 0) {
+      this.loadBrowseProducts();
+    } else if (tab === 'inventory' && this.inventory.length === 0) {
+      this.loadMyInventory();
+    } else if (tab === 'orders' && this.orders.length === 0) {
+      this.loadOrders();
+    }
+  }
+  
+  loadBrowseProducts(): void {
+    this.inventoryService.getBrowseProducts().subscribe({
+      next: (response: any) => {
+        this.browseProducts = response.data || [];
+        console.log('[SUCCESS] Loaded browse products:', this.browseProducts);
+      },
+      error: (err) => {
+        console.error('[ERROR] Failed to load browse products:', err);
+        this.message = 'Failed to load products';
+        this.messageClass = 'alert alert-error';
+      }
+    });
+  }
+  
+  loadMyInventory(): void {
+    this.inventoryService.getMyInventory().subscribe({
+      next: (response: any) => {
+        this.inventory = response.data || [];
+        this.inventoryStats = response.stats || null;
+        console.log('[SUCCESS] Loaded inventory:', this.inventory);
+      },
+      error: (err) => {
+        console.error('[ERROR] Failed to load inventory:', err);
+      }
+    });
+  }
+  
+  loadOrders(): void {
+    this.orderService.getVendorOrders().subscribe({
+      next: (response: any) => {
+        this.orders = response.data || [];
+        this.totalSales = this.orders.reduce((sum: number, order: any) => sum + order.totalPrice, 0);
+        console.log('[SUCCESS] Loaded orders:', this.orders);
+      },
+      error: (err) => {
+        console.error('[ERROR] Failed to load orders:', err);
+      }
+    });
+  }
+  
+  loadInventoryAnalytics(): void {
+    this.inventoryService.getInventoryAnalytics().subscribe({
+      next: (response: any) => {
+        this.inventoryAnalytics = response.data;
+        console.log('[SUCCESS] Loaded analytics:', this.inventoryAnalytics);
+      },
+      error: (err) => {
+        console.error('[ERROR] Failed to load analytics:', err);
+      }
+    });
+  }
+  
+  openSourceModal(product: any): void {
+    this.selectedProduct = product;
+    this.showSourceModal = true;
+    this.message = '';
+    
+    // Pre-fill with suggested pricing
+    const suggestedPurchasePrice = product.discountPrice || product.price;
+    const suggestedSellingPrice = Math.round(suggestedPurchasePrice * 1.25); // 25% markup
+    
+    this.sourceForm.patchValue({
+      quantity: 1,
+      purchasePrice: suggestedPurchasePrice,
+      sellingPrice: suggestedSellingPrice
+    });
+  }
+  
+  closeSourceModal(): void {
+    this.showSourceModal = false;
+    this.selectedProduct = null;
+    this.sourceForm.reset({
+      quantity: 1,
+      purchasePrice: 0,
+      sellingPrice: 0,
+      notes: ''
+    });
+    this.message = '';
+  }
+  
+  submitSourceProduct(): void {
+    if (this.sourceForm.invalid || !this.selectedProduct) return;
+    
+    this.loading = true;
+    this.message = '';
+    
+    const formData = {
+      ...this.sourceForm.value,
+      productId: this.selectedProduct._id
+    };
+    
+    this.inventoryService.sourceProduct(formData).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.message = 'Product sourced successfully!';
+        this.messageClass = 'alert alert-success';
+        
+        setTimeout(() => {
+          this.closeSourceModal();
+          this.loadMyInventory();
+          this.switchTab('inventory');
+        }, 1500);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.message = err.error?.message || 'Failed to source product';
+        this.messageClass = 'alert alert-error';
+      }
+    });
+  }
+  
+  updateInventoryItem(item: any): void {
+    const newQuantity = prompt(`Update quantity for ${item.sourceProduct?.name}:`, item.quantity);
+    if (newQuantity === null) return;
+    
+    const newSellingPrice = prompt(`Update selling price:`, item.sellingPrice);
+    if (newSellingPrice === null) return;
+    
+    const updateData = {
+      quantity: parseInt(newQuantity),
+      sellingPrice: parseFloat(newSellingPrice)
+    };
+    
+    this.inventoryService.updateInventory(item._id, updateData).subscribe({
+      next: () => {
+        this.loadMyInventory();
+        alert('Inventory updated successfully!');
+      },
+      error: (err) => {
+        alert('Failed to update inventory');
+      }
+    });
+  }
+  
+  deleteInventoryItem(id: string): void {
+    if (confirm('Are you sure you want to delete this inventory item?')) {
+      this.inventoryService.deleteInventory(id).subscribe({
+        next: () => {
+          this.loadMyInventory();
+          alert('Inventory item deleted successfully!');
+        },
+        error: () => {
+          alert('Failed to delete inventory item');
+        }
+      });
+    }
+  }
 }
+

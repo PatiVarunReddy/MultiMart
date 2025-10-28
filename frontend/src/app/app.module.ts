@@ -16,7 +16,6 @@ import { ProductDetailComponent } from './pages/products/product-detail/product-
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { VendorDashboardComponent } from './pages/vendor/dashboard/dashboard.component';
-import { AdminDashboardComponent } from './pages/admin/dashboard/dashboard.component';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -28,11 +27,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     LoginComponent,
     RegisterComponent,
     ProductListComponent,
-    ProductDetailComponent,
-    CartComponent,
     CheckoutComponent,
-    VendorDashboardComponent,
-    AdminDashboardComponent
+    VendorDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -40,6 +36,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    CartComponent,
     LucideAngularModule.pick({ ShoppingCart, Package, User, Settings, LogOut, Star, 
                                DollarSign, TrendingUp, Search, Home, Menu, X })
   ],

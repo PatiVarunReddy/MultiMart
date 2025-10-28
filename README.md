@@ -1,4 +1,4 @@
-# Multi-Vendor Marketplace Platform (MEAN Stack)
+# MultiMart Platform (MEAN Stack)
 
 A complete eCommerce platform built with **MongoDB, Express.js, Angular, and Node.js**.
 

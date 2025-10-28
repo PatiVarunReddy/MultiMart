@@ -1,0 +1,18 @@
+<div class="container mt-3">
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchKeyword">
+    <button class="btn btn-gold" (click)="search()">Search</button>
+  </div>
+  <div class="row" style="display:flex;gap:12px;flex-wrap:wrap">
+    <div style="flex:1 1 calc(25% - 12px);min-width:220px" *ngFor="let product of products">
+      <div class="card">
+        <img [src]="product.image" class="card-img-top" alt="product">
+        <div class="card-body">
+          <h5 class="card-title">{{product.name}}</h5>
+          <p class="card-text">{{product.price | currency}}</p>
+          <a routerLink="/checkout" class="btn btn-gold w-100">Buy Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

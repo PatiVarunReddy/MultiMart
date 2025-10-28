@@ -17,6 +17,10 @@ export class OrderService {
   getMyOrders(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/myorders`);
   }
+  
+  getVendorOrders(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vendor/orders`);
+  }
 
   getOrderById(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);

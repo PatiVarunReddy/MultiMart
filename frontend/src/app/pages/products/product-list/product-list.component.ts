@@ -9,68 +9,53 @@ import { HttpClient } from '@angular/common/http';
     <div class="container" style="margin-top: 2rem;">
       <h1>All Products</h1>
       
-      <!-- Advanced Filters Section -->
+      <!-- Simple Search and Filter Section -->
       <div class="filters-section">
         <div class="search-bar">
           <lucide-icon name="search" class="search-icon"></lucide-icon>
           <input type="text" 
                  [(ngModel)]="searchTerm" 
                  (keyup.enter)="applyFilters()"
-                 placeholder="Search products by name, description, or tags..." 
+                 placeholder="Search products..." 
                  class="search-input">
-          <button class="btn-search" (click)="applyFilters()">Search</button>
         </div>
-        
+
         <div class="filter-controls">
-          <div class="filter-item">
-            <label>
-              <lucide-icon name="package" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></lucide-icon>
-              Category
-            </label>
-            <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="filter-select">
-              <option value="">All Categories</option>
-              <option *ngFor="let category of categories" [value]="category._id">
-                {{category.name}}
-              </option>
-            </select>
-          </div>
-          
-          <div class="filter-item">
-            <label>
-              <lucide-icon name="dollar-sign" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></lucide-icon>
-              Min Price (₹)
-            </label>
-            <input type="number" 
-                   [(ngModel)]="minPrice" 
-                   (change)="applyFilters()"
-                   placeholder="0" 
-                   class="filter-input">
-          </div>
-          
-          <div class="filter-item">
-            <label>
-              <lucide-icon name="dollar-sign" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></lucide-icon>
-              Max Price (₹)
-            </label>
-            <input type="number" 
-                   [(ngModel)]="maxPrice" 
-                   (change)="applyFilters()"
-                   placeholder="100000" 
-                   class="filter-input">
-          </div>
-          
-          <div class="filter-item">
-            <label>
-              <lucide-icon name="trending-up" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></lucide-icon>
-              Sort By
-            </label>
-            <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select">
-              <option value="newest">Newest First</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
-          </div>
+          <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="control-item">
+            <option value="">All Categories</option>
+            <option *ngFor="let category of categories" [value]="category._id">
+              {{category.name}}
+            </option>
+          </select>
+
+          <input type="number" 
+                 [(ngModel)]="minPrice" 
+                 (change)="applyFilters()"
+                 placeholder="Min Price (₹)" 
+                 class="control-item">
+
+          <input type="number" 
+                 [(ngModel)]="maxPrice" 
+                 (change)="applyFilters()"
+                 placeholder="Max Price (₹)" 
+                 class="control-item">
+
+          <select [(ngModel)]="sortBy" (change)="applyFilters()" class="control-item">
+            <option value="newest">Newest First</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+
+          <button class="btn-apply" (click)="applyFilters()">
+            Apply Filters
+          </button>
+
+          <button class="btn-clear" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+            Clear All
+          </button>
+        </div>
+      </div>
           
           <div class="filter-item">
             <button class="btn-clear" (click)="clearFilters()">
@@ -100,7 +85,6 @@ import { HttpClient } from '@angular/common/http';
             <lucide-icon name="x" style="width: 12px; height: 12px; cursor: pointer;" (click)="maxPrice=null; applyFilters()"></lucide-icon>
           </span>
         </div>
-      </div>
       
       <!-- Results Header -->
       <div class="results-header">
@@ -154,33 +138,157 @@ import { HttpClient } from '@angular/common/http';
           </div>
         </div>
       </div>
-    </div>
   `,
   styles: [`
     .filters-section {
       background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       margin: 2rem 0;
+    }
+    
+    .search-container {
+      margin-bottom: 2rem;
     }
     
     .search-bar {
       display: flex;
       align-items: center;
       gap: 1rem;
-      margin-bottom: 1.5rem;
+      background: #f8f9fa;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+    
+    .search-bar:focus-within {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
     
     .search-icon {
-      width: 20px;
-      height: 20px;
-      stroke: #7f8c8d;
+      width: 24px;
+      height: 24px;
+      stroke: #6c757d;
       stroke-width: 2;
+      flex-shrink: 0;
+    }
+    
+    .search-suggestions {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      color: #6c757d;
+      font-size: 0.9rem;
     }
     
     .search-input {
       flex: 1;
+      
+    .filter-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+    
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .filter-item label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #495057;
+      font-weight: 500;
+      font-size: 0.95rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    
+    .filter-item label lucide-icon {
+      width: 18px;
+      height: 18px;
+      stroke: #6c757d;
+      stroke-width: 2;
+      flex-shrink: 0;
+      position: relative;
+      top: -1px;
+    }
+    
+    .filter-item label span {
+      position: relative;
+      top: 1px;
+    }
+    
+    .filter-select, .filter-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      background-color: white;
+      color: #495057;
+      font-size: 0.95rem;
+      height: 38px;
+    }
+    
+    .filter-select:focus, .filter-input:focus {
+      border-color: #80bdff;
+      outline: 0;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    
+    .btn-clear {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #e9ecef;
+      border: none;
+      border-radius: 4px;
+      color: #495057;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1.5rem;
+    }
+    
+    .btn-clear:hover {
+      background-color: #dee2e6;
+    }
+    
+    .btn-clear lucide-icon {
+      width: 16px;
+      height: 16px;
+      stroke: #495057;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    
+    .btn-search {
+      padding: 0.5rem 1.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-search:hover {
+      background-color: #0056b3;
+    }
       padding: 0.8rem 1rem;
       border: 2px solid #e0e0e0;
       border-radius: 8px;
@@ -280,16 +388,70 @@ import { HttpClient } from '@angular/common/http';
       font-size: 0.9rem;
     }
     
-    .filter-tag {
+    .filter-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.4rem 0.8rem;
+      padding: 0.5rem 1rem;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 500;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .filter-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .filter-badge lucide-icon {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .filter-badge lucide-icon:hover {
+      transform: scale(1.2);
+    }
+
+    .filter-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .btn-clear-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-clear-all:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    .btn-clear-all lucide-icon {
+      width: 16px;
+      height: 16px;
     }
     
     .results-header {
@@ -299,6 +461,10 @@ import { HttpClient } from '@angular/common/http';
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     .results-header h2 {
@@ -448,6 +614,19 @@ export class ProductListComponent implements OnInit {
 
   search(): void {
     this.loadProducts();
+  }
+
+  getSortLabel(): string {
+    switch (this.sortBy) {
+      case 'price-asc':
+        return 'Price: Low to High';
+      case 'price-desc':
+        return 'Price: High to Low';
+      case 'rating':
+        return 'Highest Rated';
+      default:
+        return 'Newest First';
+    }
   }
 
   viewProduct(id: string): void {

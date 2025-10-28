@@ -1,4 +1,4 @@
-# 🧪 Testing Guide - MVMP Platform
+# 🧪 Testing Guide - MultiMart Platform
 
 ## Quick Test Flow
 
@@ -30,7 +30,7 @@ npm start
 POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
-{
+{ +
   "name": "John Customer",
   "email": "customer@test.com",
   "password": "password123",

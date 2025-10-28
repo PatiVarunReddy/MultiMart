@@ -11,9 +11,8 @@ import { CartService } from '../../services/cart.service';
         <div class="navbar-brand">
           <a routerLink="/" class="logo">
             <lucide-icon name="shopping-cart" class="logo-icon"></lucide-icon>
-            <span class="logo-text">MVMP</span>
+            <span class="logo-text">MultiMart</span>
           </a>
-          <span class="tagline">Multi-Vendor Marketplace</span>
         </div>
         
         <div class="navbar-menu">
@@ -292,6 +291,11 @@ export class NavbarComponent implements OnInit {
       this.isLoggedIn = !!user;
       this.userRole = user?.role || '';
       this.userName = user?.name || 'User';
+      
+      // Load cart when user is logged in
+      if (user) {
+        this.cartService.loadCartCount();
+      }
     });
 
     this.cartService.cartItems$.subscribe((count: any) => {
@@ -302,6 +306,7 @@ export class NavbarComponent implements OnInit {
   logout(event: Event): void {
     event.preventDefault();
     this.authService.logout();
+    this.cartService.loadCartCount(); // Clear cart count on logout
     this.router.navigate(['/']);
   }
 }
