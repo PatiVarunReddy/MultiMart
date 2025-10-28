@@ -1,13 +1,20 @@
-const mongoose = require('mongoose');
-const fs = require('fs');
-const csv = require('csv-parser');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+import mongoose from 'mongoose';
+import fs from 'fs';
+import csv from 'csv-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env from project root
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 // Import models
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const User = require('../models/User');
+import Product from '../models/Product.js';
+import Category from '../models/Category.js';
+import User from '../models/User.js';
 
 const importProducts = async () => {
   try {

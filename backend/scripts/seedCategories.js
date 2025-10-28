@@ -1,10 +1,15 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Category = require('../models/Category');
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import Category from '../models/Category.js';
+
+dotenv.config({ path: '../.env' }); // Adjust path if needed
 
 const categories = [
   { name: 'Electronics', description: 'Electronic devices and gadgets', slug: 'electronics' },
   { name: 'Fashion', description: 'Clothing, shoes, and accessories', slug: 'fashion' },
+  { name: 'Footwear', description: 'Shoes and footwear', slug: 'footwear' },
+  { name: 'Clothing', description: 'Clothing and apparel', slug: 'clothing' },
+  { name: 'Accessories', description: 'Accessories and jewelry', slug: 'accessories' },
   { name: 'Home & Kitchen', description: 'Home appliances and kitchen items', slug: 'home-kitchen' },
   { name: 'Books', description: 'Books and educational materials', slug: 'books' },
   { name: 'Sports', description: 'Sports and fitness equipment', slug: 'sports' },
