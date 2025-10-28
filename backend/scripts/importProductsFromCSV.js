@@ -44,7 +44,7 @@ const importProducts = async () => {
     console.log('[INFO] Cleared existing products');
 
     const products = [];
-    const csvPath = path.join(__dirname, '..', 'data', 'products.csv');
+    const csvPath = path.join(__dirname, '..', 'data', 'new_products.csv');
 
     // Read CSV file
     await new Promise((resolve, reject) => {
@@ -79,8 +79,8 @@ const importProducts = async () => {
             vendor: vendor._id,
             isApproved: true, // Auto-approve imported products
             isActive: true,
-            rating: parseFloat((Math.random() * 2 + 3).toFixed(1)), // Random rating between 3.0-5.0
-            numReviews: Math.floor(Math.random() * 200) + 10 // Random reviews between 10-210
+            rating: parseFloat(row.rating) || 4.0,
+            numReviews: parseInt(row.numReviews) || 0
           };
 
           products.push(product);

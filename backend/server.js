@@ -35,10 +35,12 @@ app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
+app.use('/api/inventory', require('./routes/inventoryRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Test Route
 app.get('/', (req, res) => {
-  res.json({ message: '🚀 MVMP API is running!' });
+  res.json({ message: '🚀 MultiMart API is running!' });
 });
 
 // Error Handler

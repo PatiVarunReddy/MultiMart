@@ -6,7 +6,7 @@ const Cart = require('../models/Cart');
 exports.getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id })
-      .populate('items.product', 'name price discountPrice images stock');
+      .populate('items.product', 'name price discountPrice images stock vendor');
 
     if (!cart) {
       cart = await Cart.create({ user: req.user._id, items: [] });
@@ -46,7 +46,7 @@ exports.addToCart = async (req, res) => {
       await cart.save();
     }
 
-    cart = await cart.populate('items.product', 'name price discountPrice images stock');
+    cart = await cart.populate('items.product', 'name price discountPrice images stock vendor');
 
     res.json({ success: true, data: cart });
   } catch (error) {
@@ -75,7 +75,7 @@ exports.updateCartItem = async (req, res) => {
       await cart.save();
     }
 
-    await cart.populate('items.product', 'name price discountPrice images stock');
+    await cart.populate('items.product', 'name price discountPrice images stock vendor');
 
     res.json({ success: true, data: cart });
   } catch (error) {
@@ -99,7 +99,7 @@ exports.removeFromCart = async (req, res) => {
     );
 
     await cart.save();
-    await cart.populate('items.product', 'name price discountPrice images stock');
+    await cart.populate('items.product', 'name price discountPrice images stock vendor');
 
     res.json({ success: true, data: cart });
   } catch (error) {

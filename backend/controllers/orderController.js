@@ -20,6 +20,17 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No order items' });
     }
 
+    // Validate that all required fields are present
+    for (const item of orderItems) {
+      if (!item.product || !item.vendor) {
+        console.error('Missing required fields in order item:', item);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid order item: missing product or vendor' 
+        });
+      }
+    }
+
     const order = await Order.create({
       user: req.user._id,
       orderItems,
@@ -40,6 +51,7 @@ exports.createOrder = async (req, res) => {
 
     res.status(201).json({ success: true, data: order });
   } catch (error) {
+    console.error('Order creation error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -115,6 +127,31 @@ exports.getAllOrders = async (req, res) => {
 
     res.json({ success: true, data: orders });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get vendor orders
+// @route   GET /api/orders/vendor/orders
+// @access  Private (Vendor)
+exports.getVendorOrders = async (req, res) => {
+  try {
+    const Vendor = require('../models/Vendor');
+    const vendor = await Vendor.findOne({ userId: req.user._id });
+    
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' });
+    }
+
+    // Find orders that contain products from this vendor
+    const orders = await Order.find({ 'orderItems.vendor': vendor._id })
+      .populate('user', 'name email phone')
+      .populate('orderItems.product', 'name images')
+      .sort('-createdAt');
+
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.error('Get vendor orders error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

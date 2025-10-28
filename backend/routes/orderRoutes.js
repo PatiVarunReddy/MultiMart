@@ -5,7 +5,8 @@ const {
   getMyOrders,
   getOrderById,
   updateOrderStatus,
-  getAllOrders
+  getAllOrders,
+  getVendorOrders
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -14,6 +15,7 @@ router.route('/')
   .get(protect, authorize('admin'), getAllOrders);
 
 router.get('/myorders', protect, getMyOrders);
+router.get('/vendor/orders', protect, authorize('vendor'), getVendorOrders);
 router.get('/:id', protect, getOrderById);
 router.put('/:id/status', protect, authorize('vendor', 'admin'), updateOrderStatus);
 
