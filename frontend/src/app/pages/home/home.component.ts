@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/models';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -266,7 +267,7 @@ export class HomeComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.http.get<any>('http://localhost:5000/api/categories').subscribe({
+    this.http.get<any>(`${environment.apiUrl}/categories`).subscribe({
       next: (response) => {
         this.categories = response.data || [];
       },

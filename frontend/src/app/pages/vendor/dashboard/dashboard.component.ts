@@ -5,6 +5,7 @@ import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -937,7 +938,7 @@ export class VendorDashboardComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.http.get<any>('http://localhost:5000/api/categories').subscribe({
+    this.http.get<any>(`${environment.apiUrl}/categories`).subscribe({
       next: (response) => {
         this.categories = response.data || [];
         console.log('[SUCCESS] Loaded categories:', this.categories);
