@@ -1,13 +1,13 @@
-const Review = require('../models/Review');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
-const fs = require('fs').promises;
-const path = require('path');
+import Review from '../models/Review.js';
+import Product from '../models/Product.js';
+import Order from '../models/Order.js';
+import fs from 'fs/promises';
+import path from 'path';
 
 // @desc    Get product reviews
 // @route   GET /api/reviews/product/:productId
 // @access  Public
-exports.getProductReviews = async (req, res) => {
+export const getProductReviews = async (req, res) => {
   try {
     // Only show approved reviews to public
     const reviews = await Review.find({ 
@@ -26,7 +26,7 @@ exports.getProductReviews = async (req, res) => {
 // @desc    Create review
 // @route   POST /api/reviews
 // @access  Private
-exports.createReview = async (req, res) => {
+export const createReview = async (req, res) => {
   try {
     const { product, rating, comment } = req.body;
 
@@ -92,7 +92,7 @@ exports.createReview = async (req, res) => {
 // @desc    Delete review
 // @route   DELETE /api/reviews/:id
 // @access  Private
-exports.deleteReview = async (req, res) => {
+export const deleteReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
 
@@ -136,7 +136,7 @@ exports.deleteReview = async (req, res) => {
 // @desc    Mark review as helpful
 // @route   POST /api/reviews/:id/helpful
 // @access  Private
-exports.markReviewHelpful = async (req, res) => {
+export const markReviewHelpful = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
 

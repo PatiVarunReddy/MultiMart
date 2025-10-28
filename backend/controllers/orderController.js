@@ -1,10 +1,11 @@
-const Order = require('../models/Order');
-const Product = require('../models/Product');
+import Order from '../models/Order.js';
+import Product from '../models/Product.js';
+import Vendor from '../models/Vendor.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
-exports.createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try {
     const {
       orderItems,
@@ -59,7 +60,7 @@ exports.createOrder = async (req, res) => {
 // @desc    Get user orders
 // @route   GET /api/orders/myorders
 // @access  Private
-exports.getMyOrders = async (req, res) => {
+export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
       .populate('orderItems.product', 'name images')
@@ -74,7 +75,7 @@ exports.getMyOrders = async (req, res) => {
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
 // @access  Private
-exports.getOrderById = async (req, res) => {
+export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('user', 'name email')
@@ -93,7 +94,7 @@ exports.getOrderById = async (req, res) => {
 // @desc    Update order status
 // @route   PUT /api/orders/:id/status
 // @access  Private (Vendor/Admin)
-exports.updateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
 
@@ -119,7 +120,7 @@ exports.updateOrderStatus = async (req, res) => {
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders
 // @access  Private (Admin)
-exports.getAllOrders = async (req, res) => {
+export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({})
       .populate('user', 'name email')
@@ -134,9 +135,8 @@ exports.getAllOrders = async (req, res) => {
 // @desc    Get vendor orders
 // @route   GET /api/orders/vendor/orders
 // @access  Private (Vendor)
-exports.getVendorOrders = async (req, res) => {
+export const getVendorOrders = async (req, res) => {
   try {
-    const Vendor = require('../models/Vendor');
     const vendor = await Vendor.findOne({ userId: req.user._id });
     
     if (!vendor) {

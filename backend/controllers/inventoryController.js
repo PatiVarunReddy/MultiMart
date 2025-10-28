@@ -1,11 +1,11 @@
-const VendorInventory = require('../models/VendorInventory');
-const Product = require('../models/Product');
-const Vendor = require('../models/Vendor');
+import VendorInventory from '../models/VendorInventory.js';
+import Product from '../models/Product.js';
+import Vendor from '../models/Vendor.js';
 
 // @desc    Get vendor's sourced inventory
 // @route   GET /api/inventory/my-inventory
 // @access  Private (Vendor only)
-exports.getMyInventory = async (req, res) => {
+export const getMyInventory = async (req, res) => {
   try {
     const vendor = await Vendor.findOne({ userId: req.user._id });
     
@@ -36,7 +36,7 @@ exports.getMyInventory = async (req, res) => {
 // @desc    Get products from other vendors (for sourcing)
 // @route   GET /api/inventory/browse
 // @access  Private (Vendor only)
-exports.getBrowseProducts = async (req, res) => {
+export const getBrowseProducts = async (req, res) => {
   try {
     const vendor = await Vendor.findOne({ userId: req.user._id });
     
@@ -65,7 +65,7 @@ exports.getBrowseProducts = async (req, res) => {
 // @desc    Source/Purchase product from another vendor
 // @route   POST /api/inventory/source
 // @access  Private (Vendor only)
-exports.sourceProduct = async (req, res) => {
+export const sourceProduct = async (req, res) => {
   try {
     const { productId, quantity, purchasePrice, sellingPrice, notes } = req.body;
 
@@ -130,7 +130,7 @@ exports.sourceProduct = async (req, res) => {
 // @desc    Update inventory item
 // @route   PUT /api/inventory/:id
 // @access  Private (Vendor only)
-exports.updateInventory = async (req, res) => {
+export const updateInventory = async (req, res) => {
   try {
     const { quantity, sellingPrice, status, notes } = req.body;
 
@@ -182,7 +182,7 @@ exports.updateInventory = async (req, res) => {
 // @desc    Delete inventory item
 // @route   DELETE /api/inventory/:id
 // @access  Private (Vendor only)
-exports.deleteInventory = async (req, res) => {
+export const deleteInventory = async (req, res) => {
   try {
     const vendor = await Vendor.findOne({ userId: req.user._id });
     
@@ -216,7 +216,7 @@ exports.deleteInventory = async (req, res) => {
 // @desc    Get inventory analytics
 // @route   GET /api/inventory/analytics
 // @access  Private (Vendor only)
-exports.getInventoryAnalytics = async (req, res) => {
+export const getInventoryAnalytics = async (req, res) => {
   try {
     const vendor = await Vendor.findOne({ userId: req.user._id });
     

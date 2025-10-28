@@ -5,14 +5,54 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import path from 'path';
 
-dotenv.config(); // ✅ This line must come BEFORE using process.env
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mvmpDB";
+// Load .env from project root (one level up from backend)
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+// Build MongoDB URI with the same priority used in backend/config/db.js
+const buildMongoUri = () => {
+  const {
+    MONGODB_URI,
+    MONGO_URI,
+    MONGODB_USER,
+    MONGODB_PASSWORD,
+    MONGODB_HOST,
+    MONGODB_DB,
+    MONGODB_OPTIONS
+  } = process.env;
+
+  if (MONGODB_URI) return MONGODB_URI;
+  if (MONGO_URI) return MONGO_URI;
+
+  if (MONGODB_HOST) {
+    const isSrv = MONGODB_HOST.includes('mongodb.net') || MONGODB_HOST.includes('+srv');
+    const user = MONGODB_USER ? encodeURIComponent(MONGODB_USER) : '';
+    const pass = MONGODB_PASSWORD ? encodeURIComponent(MONGODB_PASSWORD) : '';
+    const auth = user && pass ? `${user}:${pass}@` : '';
+    const dbName = MONGODB_DB || 'mvmpDB';
+    const opts = MONGODB_OPTIONS ? `?${MONGODB_OPTIONS}` : '?retryWrites=true&w=majority';
+
+    if (isSrv) return `mongodb+srv://${auth}${MONGODB_HOST}/${dbName}${opts}`;
+    return `mongodb://${auth}${MONGODB_HOST}/${dbName}${opts}`;
+  }
+
+  return 'mongodb://127.0.0.1:27017/mvmpDB';
+};
+
+const MONGO_URI = buildMongoUri();
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => {
+    const using = MONGO_URI.includes('mongodb+srv') || MONGO_URI.includes('mongodb.net') ? 'MongoDB Atlas' : 'MongoDB (local)';
+    console.log(`✅ ${using} connected`);
+  })
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 const app = express();
 

@@ -1,9 +1,9 @@
-const Wishlist = require('../models/Wishlist');
+import Wishlist from '../models/Wishlist.js';
 
 // @desc    Get wishlist
 // @route   GET /api/wishlist
 // @access  Private
-exports.getWishlist = async (req, res) => {
+export const getWishlist = async (req, res) => {
   try {
     let wishlist = await Wishlist.findOne({ user: req.user._id })
       .populate('products', 'name price discountPrice images rating');
@@ -21,7 +21,7 @@ exports.getWishlist = async (req, res) => {
 // @desc    Add to wishlist
 // @route   POST /api/wishlist/:productId
 // @access  Private
-exports.addToWishlist = async (req, res) => {
+export const addToWishlist = async (req, res) => {
   try {
     let wishlist = await Wishlist.findOne({ user: req.user._id });
 
@@ -48,7 +48,7 @@ exports.addToWishlist = async (req, res) => {
 // @desc    Remove from wishlist
 // @route   DELETE /api/wishlist/:productId
 // @access  Private
-exports.removeFromWishlist = async (req, res) => {
+export const removeFromWishlist = async (req, res) => {
   try {
     const wishlist = await Wishlist.findOne({ user: req.user._id });
 

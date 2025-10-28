@@ -1,9 +1,9 @@
-const Cart = require('../models/Cart');
+import Cart from '../models/Cart.js';
 
 // @desc    Get user cart
 // @route   GET /api/cart
 // @access  Private
-exports.getCart = async (req, res) => {
+export const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id })
       .populate('items.product', 'name price discountPrice images stock vendor');
@@ -21,7 +21,7 @@ exports.getCart = async (req, res) => {
 // @desc    Add item to cart
 // @route   POST /api/cart
 // @access  Private
-exports.addToCart = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
@@ -57,7 +57,7 @@ exports.addToCart = async (req, res) => {
 // @desc    Update cart item
 // @route   PUT /api/cart/:productId
 // @access  Private
-exports.updateCartItem = async (req, res) => {
+export const updateCartItem = async (req, res) => {
   try {
     const { quantity } = req.body;
     const cart = await Cart.findOne({ user: req.user._id });
@@ -86,7 +86,7 @@ exports.updateCartItem = async (req, res) => {
 // @desc    Remove item from cart
 // @route   DELETE /api/cart/:productId
 // @access  Private
-exports.removeFromCart = async (req, res) => {
+export const removeFromCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user._id });
 
@@ -110,7 +110,7 @@ exports.removeFromCart = async (req, res) => {
 // @desc    Clear cart
 // @route   DELETE /api/cart
 // @access  Private
-exports.clearCart = async (req, res) => {
+export const clearCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user._id });
 

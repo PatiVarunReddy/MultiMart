@@ -1,9 +1,9 @@
-const Product = require('../models/Product');
+import Product from '../models/Product.js';
 
 // @desc    Get all products with filters
 // @route   GET /api/products
 // @access  Public
-exports.getProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
   try {
     const { category, minPrice, maxPrice, search, sort, page = 1, limit = 12 } = req.query;
 
@@ -60,7 +60,7 @@ exports.getProducts = async (req, res) => {
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public
-exports.getProduct = async (req, res) => {
+export const getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate('vendor', 'storeName rating businessEmail businessPhone')
@@ -79,7 +79,7 @@ exports.getProduct = async (req, res) => {
 // @desc    Create product
 // @route   POST /api/products
 // @access  Private (Vendor)
-exports.createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const product = await Product.create({
       ...req.body,
@@ -97,7 +97,7 @@ exports.createProduct = async (req, res) => {
 // @desc    Update product
 // @route   PUT /api/products/:id
 // @access  Private (Vendor/Admin)
-exports.updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
 
@@ -124,7 +124,7 @@ exports.updateProduct = async (req, res) => {
 // @desc    Delete product
 // @route   DELETE /api/products/:id
 // @access  Private (Vendor/Admin)
-exports.deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -148,7 +148,7 @@ exports.deleteProduct = async (req, res) => {
 // @desc    Get vendor products
 // @route   GET /api/products/vendor/:vendorId
 // @access  Public
-exports.getVendorProducts = async (req, res) => {
+export const getVendorProducts = async (req, res) => {
   try {
     const products = await Product.find({ 
       vendor: req.params.vendorId,
@@ -164,7 +164,7 @@ exports.getVendorProducts = async (req, res) => {
 // @desc    Get my products (for logged-in vendor)
 // @route   GET /api/products/my-products
 // @access  Private (Vendor)
-exports.getMyProducts = async (req, res) => {
+export const getMyProducts = async (req, res) => {
   try {
     if (!req.user.vendorId) {
       return res.status(403).json({ success: false, message: 'Not a vendor' });

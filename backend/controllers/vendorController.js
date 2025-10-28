@@ -1,9 +1,9 @@
-const Vendor = require('../models/Vendor');
+import Vendor from '../models/Vendor.js';
 
 // @desc    Get all vendors
 // @route   GET /api/vendors
 // @access  Public
-exports.getVendors = async (req, res) => {
+export const getVendors = async (req, res) => {
   try {
     const vendors = await Vendor.find({ isActive: true })
       .populate('userId', 'name email');
@@ -16,7 +16,7 @@ exports.getVendors = async (req, res) => {
 // @desc    Get vendor by ID
 // @route   GET /api/vendors/:id
 // @access  Public
-exports.getVendor = async (req, res) => {
+export const getVendor = async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id)
       .populate('userId', 'name email');
@@ -34,7 +34,7 @@ exports.getVendor = async (req, res) => {
 // @desc    Update vendor profile
 // @route   PUT /api/vendors/:id
 // @access  Private (Vendor/Admin)
-exports.updateVendor = async (req, res) => {
+export const updateVendor = async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id);
 
@@ -62,7 +62,7 @@ exports.updateVendor = async (req, res) => {
 // @desc    Approve vendor
 // @route   PUT /api/vendors/:id/approve
 // @access  Private (Admin)
-exports.approveVendor = async (req, res) => {
+export const approveVendor = async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id);
 

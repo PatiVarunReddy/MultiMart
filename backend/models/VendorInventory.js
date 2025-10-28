@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const vendorInventorySchema = new mongoose.Schema({
   vendor: {
@@ -53,4 +53,4 @@ vendorInventorySchema.virtual('profitMargin').get(function() {
 vendorInventorySchema.set('toJSON', { virtuals: true });
 vendorInventorySchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('VendorInventory', vendorInventorySchema);
+export default mongoose.model('VendorInventory', vendorInventorySchema);

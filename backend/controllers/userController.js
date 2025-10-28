@@ -1,9 +1,9 @@
-const User = require('../models/User');
+import User from '../models/User.js';
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private (Admin)
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
     const users = await User.find({}).select('-password');
     res.json({ success: true, data: users });
@@ -15,7 +15,7 @@ exports.getUsers = async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
-exports.updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
 
@@ -49,7 +49,7 @@ exports.updateProfile = async (req, res) => {
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private (Admin)
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 

@@ -1,12 +1,12 @@
-const Review = require('../models/Review');
-const User = require('../models/User');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
+import Review from '../models/Review.js';
+import User from '../models/User.js';
+import Product from '../models/Product.js';
+import Order from '../models/Order.js';
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
 // @access  Private/Admin
-exports.getDashboardStats = async (req, res) => {
+export const getDashboardStats = async (req, res) => {
   try {
     const [
       totalUsers,
@@ -59,7 +59,7 @@ exports.getDashboardStats = async (req, res) => {
 // @desc    Get all pending reviews
 // @route   GET /api/admin/reviews/pending
 // @access  Private/Admin
-exports.getPendingReviews = async (req, res) => {
+export const getPendingReviews = async (req, res) => {
   try {
     const reviews = await Review.find({ status: 'pending' })
       .populate('user', 'name email')
@@ -81,7 +81,7 @@ exports.getPendingReviews = async (req, res) => {
 // @desc    Get all reviews with filters
 // @route   GET /api/admin/reviews
 // @access  Private/Admin
-exports.getAllReviews = async (req, res) => {
+export const getAllReviews = async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
     
@@ -123,7 +123,7 @@ exports.getAllReviews = async (req, res) => {
 // @desc    Approve a review
 // @route   PUT /api/admin/reviews/:id/approve
 // @access  Private/Admin
-exports.approveReview = async (req, res) => {
+export const approveReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
 
@@ -163,7 +163,7 @@ exports.approveReview = async (req, res) => {
 // @desc    Reject a review
 // @route   PUT /api/admin/reviews/:id/reject
 // @access  Private/Admin
-exports.rejectReview = async (req, res) => {
+export const rejectReview = async (req, res) => {
   try {
     const { reason } = req.body;
     const review = await Review.findById(req.params.id);
@@ -202,7 +202,7 @@ exports.rejectReview = async (req, res) => {
 // @desc    Delete a review
 // @route   DELETE /api/admin/reviews/:id
 // @access  Private/Admin
-exports.deleteReview = async (req, res) => {
+export const deleteReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
 
@@ -251,5 +251,3 @@ async function updateProductRating(productId) {
     });
   }
 }
-
-module.exports = exports;
