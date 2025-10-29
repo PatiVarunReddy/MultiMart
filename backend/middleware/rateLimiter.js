@@ -1,10 +1,10 @@
 import rateLimit from 'express-rate-limit';
 
-// Limit to 5 requests per 15 minutes per IP by default
-const otpRequestLimiter = rateLimit({
+// General API rate limiter (if needed in future)
+const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
-  message: { success: false, message: 'Too many OTP requests from this IP, please try again later' }
+  max: 100,
+  message: { success: false, message: 'Too many requests from this IP, please try again later' }
 });
 
-export { otpRequestLimiter };
+export { generalLimiter };

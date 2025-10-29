@@ -21,19 +21,8 @@ const loginSchema = Joi.object({
   password: Joi.string().min(6).required()
 });
 
-const requestOtpSchema = Joi.object({
-  identifier: Joi.string().required()
-});
-
-const verifyOtpSchema = Joi.object({
-  identifier: Joi.string().required(),
-  code: Joi.string().length(6).required()
-});
-
 export {
   validate,
   registerSchema,
-  loginSchema,
-  requestOtpSchema,
-  verifyOtpSchema
+  loginSchema
 };

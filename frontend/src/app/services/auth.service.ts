@@ -44,24 +44,6 @@ export class AuthService {
       );
   }
 
-  // Request OTP for identifier (email or phone)
-  requestOtp(identifier: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/request-otp`, { identifier });
-  }
-
-  // Verify OTP and login
-  verifyOtp(identifier: string, code: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/verify-otp`, { identifier, code })
-      .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            localStorage.setItem('currentUser', JSON.stringify(response.data));
-            this.currentUserSubject.next(response.data);
-          }
-        })
-      );
-  }
-
   register(userData: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/register`, userData)
       .pipe(

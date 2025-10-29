@@ -10,12 +10,10 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { VendorDashboardComponent } from './pages/vendor/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
-import { VerifyOtpComponent } from './pages/auth/verify-otp/verify-otp.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'verify-otp', component: VerifyOtpComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'products', component: ProductListComponent },
   { 
